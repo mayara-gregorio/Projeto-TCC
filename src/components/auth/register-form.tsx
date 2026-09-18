@@ -27,6 +27,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 const registerSchema = z.object({
+  name: z
+    .string()
+    .min(2, "O nome deve ter pelo menos 2 caracteres."),
   email: z
     .string()
     .email("Digite um e-mail válido."),
@@ -51,6 +54,7 @@ export function RegisterForm() {
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -70,6 +74,11 @@ export function RegisterForm() {
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
+      options: {
+        data: {
+          name: data.name,
+        }
+      }
     });
 
     if (error) {
@@ -93,6 +102,55 @@ export function RegisterForm() {
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
+
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="name">
+                    Nome
+                  </FieldLabel>
+
+                  <Input
+                    {...field}
+                    id="name"
+                    type="text"
+                    placeholder="Seu nome completo"
+                    aria-invalid={fieldState.invalid}
+                  />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="email">
+                    E-mail
+                  </FieldLabel>
+
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    autoComplete="email"
+                    aria-invalid={fieldState.invalid}
+                  />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
             <Controller
               name="email"

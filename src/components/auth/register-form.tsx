@@ -69,6 +69,12 @@ export function RegisterForm() {
   }
 
   async function onSubmit(data: RegisterFormData) {
+
+    if (data.password !== data.confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
     setError(null);
 
     const { error } = await supabase.auth.signUp({
@@ -86,7 +92,7 @@ export function RegisterForm() {
       return;
     }
 
-    router.push("/student");
+    router.push("/login");
     router.refresh();
   }
 
@@ -117,31 +123,6 @@ export function RegisterForm() {
                     id="name"
                     type="text"
                     placeholder="Seu nome completo"
-                    aria-invalid={fieldState.invalid}
-                  />
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">
-                    E-mail
-                  </FieldLabel>
-
-                  <Input
-                    {...field}
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    autoComplete="email"
                     aria-invalid={fieldState.invalid}
                   />
 

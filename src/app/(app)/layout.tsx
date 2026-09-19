@@ -1,21 +1,18 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/get-user";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
-    const supabase = await createClient();
+  const user = await getCurrentUser();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+  if (!user) {
       redirect("/login");
-    }
+  }
+
   return (
       <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar titleDropdown={user.name} />
       <main className="p-4">
         <SidebarTrigger />
         {children}

@@ -11,11 +11,11 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   }
 
   return (
-      <SidebarProvider>
+    <SidebarProvider>
       <AppSidebar titleDropdown={user.name} />
-      <main className="p-4">
+      <main className="flex-1 p-4">
         <SidebarTrigger />
-        {children}
+        <div className="w-full">{children}</div>
       </main>
     </SidebarProvider>
   );

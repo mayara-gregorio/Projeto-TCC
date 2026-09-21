@@ -1,33 +1,110 @@
 import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/get-user";
+import { CreateClassButton } from "@/components/create-class-button";
 import { createClient } from "@/lib/supabase/server";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { JoinClassButton } from "@/components/join-class-button";
+
 export default async function DashboardPage() {
+  const supabase = await createClient();
 
-  const supabase = await createClient()
+  const user = await getCurrentUser();
 
-  const user = await getCurrentUser()
-
-  if(!user){
-    return null
+  if (!user) {
+    return null;
   }
 
-  const { data: profile} = await (await supabase).from("users").select("name").eq("id", user.id).single()
+  const { count: classCount, error } = await supabase
+    .from("classes")
+    .select("id, class_members!inner(user_id)", {
+      count: "exact",
+      head: true,
+    })
+    .eq("class_members.user_id", user.id);
 
-  const { data: classes} = await (await supabase).from("classes").select("*").eq("user_id", user.id)
+  if (error) {
+    console.error(
+      "Erro ao buscar quantidade de turmas:",
+      error
+    );
+  }
+
+const { data: classes, error: errorClasses } = await supabase
+  .from("classes")
+  .select(`
+    id,
+    name,
+    code,
+    created_by,
+    class_members!inner(
+      user_id,
+      role
+    )
+  `)
+  .eq("class_members.user_id", user.id);
+
+  if (errorClasses) {
+    console.error(
+      "Erro ao buscar turmas:",
+      error
+    );
+  }
+
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <div>
-        <h1 className="text-2xl font-bold" style={{color: '#2f2e31'}}>Olá, {profile?.name}</h1>
-        <span>Aqui está um resumo das suas turmas</span>
-      </div>
-      <div>
-        <Card className="p-4 w-64">
-          <h2 className="text-xl font-semibold">2</h2>
-          <p className="text-muted-foreground">Turmas</p>
-        </Card>
-      </div>
+      <header>
+        <div>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "#2f2e31" }}
+          >
+            Olá, {user.name}
+          </h1>
 
+          <span>
+            Aqui está um resumo das suas turmas
+          </span>
+        </div>
+
+        <div>
+          <Card className="w-64 p-4">
+            <h2 className="text-xl font-semibold">
+              {classCount ?? 0}
+            </h2>
+
+            <p className="text-muted-foreground">
+              Turmas
+            </p>
+          </Card>
+        </div>
+      </header>
+
+      <main>
+        <div className="flex flex-col gap-4">
+        {classes?.map((classItem) => (
+          <Card key={classItem.id} className="flex-row p-4 justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">
+                {classItem.name}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Código: {classItem.code}
+              </p>
+            </div>
+            <div>
+              <Badge variant={classItem.class_members[0]?.role === "teacher" ? "teacher" : "default"}>{classItem.class_members[0]?.role === "teacher" ? "Professor" : "Aluno"}</Badge>
+            </div>
+          </Card>
+        ))}
+      </div>
+      </main>
+
+      <footer className="flex gap-2">
+        <CreateClassButton />
+        <JoinClassButton/>
+      </footer>
     </div>
   );
 }

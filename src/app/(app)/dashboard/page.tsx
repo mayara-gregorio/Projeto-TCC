@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { JoinClassButton } from "@/components/join-class-button";
+import { ChevronRight } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -93,8 +94,11 @@ const { data: classes, error: errorClasses } = await supabase
                 Código: {classItem.code}
               </p>
             </div>
-            <div>
+            <div className="flex-col justify-end bg-red items-center gap-4">
               <Badge variant={classItem.class_members[0]?.role === "teacher" ? "teacher" : "default"}>{classItem.class_members[0]?.role === "teacher" ? "Professor" : "Aluno"}</Badge>
+              <div className="bg-blue">
+                <a href={`/classes/${classItem.id}`}><ChevronRight /></a>
+              </div>
             </div>
           </Card>
         ))}

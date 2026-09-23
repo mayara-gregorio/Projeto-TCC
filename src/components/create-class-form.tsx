@@ -28,10 +28,6 @@ const createClassSchema = z.object({
   className: z
     .string()
     .min(2, "O nome da turma deve ter pelo menos 2 caracteres."),
-
-  classCode: z
-    .string()
-    .min(6, "O código da turma deve ter pelo menos 6 caracteres."),
 });
 
 type CreateClassFormData = z.infer<typeof createClassSchema>;
@@ -50,7 +46,6 @@ export function CreateClassForm({ userId }: CreateClassFormProps) {
 
     defaultValues: {
       className: "",
-      classCode: "",
     },
   });
 
@@ -59,7 +54,6 @@ export function CreateClassForm({ userId }: CreateClassFormProps) {
 
     const response = await createClass(
       data.className,
-      data.classCode
     );
 
     if (!response) {
@@ -97,30 +91,6 @@ export function CreateClassForm({ userId }: CreateClassFormProps) {
                     id="className"
                     type="text"
                     placeholder="Nome da Turma"
-                    aria-invalid={fieldState.invalid}
-                  />
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="classCode"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="classCode">
-                    Código da Turma
-                  </FieldLabel>
-
-                  <Input
-                    {...field}
-                    id="classCode"
-                    type="text"
-                    placeholder="Código da Turma"
                     aria-invalid={fieldState.invalid}
                   />
 

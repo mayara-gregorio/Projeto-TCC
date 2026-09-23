@@ -15,10 +15,17 @@ export default async function getClassPage({params}: PageProps) {
     redirect("/login");
   }
 
+  //se o usuário for aluno, não deve enxergar os códigos da disciplina
+
   const {id} = await params
   const { data: classItem} = await supabase
   .from("classes")
-  .select(`id, name, code, created_by, 
+  .select(
+    `id, 
+    name, 
+    teacher_invite_code,
+    student_invite_code, 
+    created_by, 
     class_members!inner(
       user_id,
       role
@@ -32,9 +39,10 @@ export default async function getClassPage({params}: PageProps) {
   }
 
   return (
-    <div className="flex min-h-[70vh] w-full items-center justify-center p-4">
+    <div className="flex-col min-h-[70vh] w-full p-4">
       <h1>{classItem.name}</h1>
-      <h2>{classItem.code}</h2>
+      <h2>Código para Convidar professor: {classItem.teacher_invite_code}</h2>
+      <h2>Código para Convidar Aluno: {classItem.student_invite_code}</h2>
     </div>
   );
 }

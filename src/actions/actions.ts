@@ -14,7 +14,6 @@ export async function logoutCurrentUser() {
 
 export async function createClass(
   className: string,
-  classCode: string
 ) {
   const supabase = await createClient();
 
@@ -32,7 +31,6 @@ export async function createClass(
     .from("classes")
     .insert({
       name: className,
-      code: classCode,
       created_by: user.id,
     });
 
@@ -63,21 +61,29 @@ export async function joinClass(classCode: string) {
     };
   }
 
-  console.log("classCode", classCode)
-  // Buscar a turma pelo código
+  // Buscar a turma pelo código (professor ou aluno)
   const { data: classData, error: errorClass } = await supabase
     .from("classes")
-    .select("id")
-    .eq("code", classCode)
-    .single();
-  
-    console.log("isssossoso", classData)
+    .select("id, teacher_invite_code, student_invite_code")
+    .or(`teacher_invite_code.eq.${code},student_invite_code.eq.${code}`)
+    .maybeSingle();
 
   if (errorClass || !classData) {
     console.error("Erro ao buscar turma:", errorClass);
-
     return {
       error: "Turma não encontrada.",
+    };
+  }
+
+  let role: "teacher" | "student";
+
+  if (classData.teacher_invite_code === code) {
+    role = "teacher";
+  } else if (classData.student_invite_code === code) {
+    role = "student";
+  } else {
+    return {
+      error: "Código inválido.",
     };
   }
 
@@ -87,15 +93,11 @@ export async function joinClass(classCode: string) {
     .insert({
       class_id: classData.id,
       user_id: user.id,
-      role: "student",
+      role,
     });
 
   if (errorJoinClass) {
-    console.error(
-      "Erro ao entrar na turma:",
-      errorJoinClass
-    );
-
+    console.error("Erro ao entrar na turma:", errorJoinClass);
     return {
       error: errorJoinClass.message,
     };

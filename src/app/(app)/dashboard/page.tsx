@@ -36,7 +36,8 @@ const { data: classes, error: errorClasses } = await supabase
   .select(`
     id,
     name,
-    code,
+    teacher_invite_code,
+    student_invite_code,
     created_by,
     class_members!inner(
       user_id,
@@ -90,9 +91,6 @@ const { data: classes, error: errorClasses } = await supabase
               <h2 className="text-lg font-semibold">
                 {classItem.name}
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Código: {classItem.code}
-              </p>
             </div>
             <div className="flex-col justify-end bg-red items-center gap-4">
               <Badge variant={classItem.class_members[0]?.role === "teacher" ? "teacher" : "default"}>{classItem.class_members[0]?.role === "teacher" ? "Professor" : "Aluno"}</Badge>

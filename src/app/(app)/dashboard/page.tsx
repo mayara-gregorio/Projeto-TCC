@@ -1,11 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/get-user";
-import { CreateClassButton } from "@/components/create-class-button";
+import { CreateClassButton } from "@/components/classe/create-class-button";
 import { createClient } from "@/lib/supabase/server";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { JoinClassButton } from "@/components/join-class-button";
-import { ChevronRight } from "lucide-react";
+import { JoinClassButton } from "@/components/classe/join-class-button";
+import { ClassCard } from "@/components/classe/class-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -85,22 +83,17 @@ const { data: classes, error: errorClasses } = await supabase
 
       <main>
         <div className="flex flex-col gap-4">
-        {classes?.map((classItem) => (
-          <Card key={classItem.id} className="flex-row p-4 justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">
-                {classItem.name}
-              </h2>
-            </div>
-            <div className="flex-col justify-end bg-red items-center gap-4">
-              <Badge variant={classItem.class_members[0]?.role === "teacher" ? "teacher" : "default"}>{classItem.class_members[0]?.role === "teacher" ? "Professor" : "Aluno"}</Badge>
-              <div className="bg-blue">
-                <a href={`/classes/${classItem.id}`}><ChevronRight /></a>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+          {classes?.map((classItem) => (
+            <ClassCard
+              key={classItem.id}
+              id={classItem.id}
+              name={classItem.name}
+              role={classItem.class_members[0]?.role === "teacher"
+                ? "teacher"
+                : "student"}
+            />
+          ))}
+        </div>
       </main>
 
       <footer className="flex gap-2">

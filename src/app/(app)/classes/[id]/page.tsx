@@ -1,4 +1,4 @@
-import { CreateClassForm } from "@/components/create-class-form";
+import { CreateClassForm } from "@/components/classe/create-class-form";
 import { getCurrentUser } from "@/lib/get-user";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -41,8 +41,21 @@ export default async function getClassPage({params}: PageProps) {
   return (
     <div className="flex-col min-h-[70vh] w-full p-4">
       <h1>{classItem.name}</h1>
-      <h2>Código para Convidar professor: {classItem.teacher_invite_code}</h2>
-      <h2>Código para Convidar Aluno: {classItem.student_invite_code}</h2>
+      {classItem.class_members[0]?.role === "teacher" && 
+      <div>
+        <h1>Isso só professor vê</h1>
+        <h2>Código para Convidar professor: {classItem.teacher_invite_code}</h2>
+        <h2>Código para Convidar Aluno: {classItem.student_invite_code}</h2>
+      </div>
+      }
+      {classItem.class_members[0]?.role === "student" && 
+      <div>
+        <h1>Isso só Aluno vê</h1>
+      </div>
+      }
+      <div>
+        <h1>Isso Professores e alunos vêem</h1>
+      </div>
     </div>
   );
 }

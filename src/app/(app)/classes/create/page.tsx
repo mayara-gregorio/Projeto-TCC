@@ -1,4 +1,4 @@
-import { CreateClassForm } from "@/components/create-class-form";
+import { CreateClassForm } from "@/components/classe/create-class-form";
 import { getCurrentUser } from "@/lib/get-user";
 import { redirect } from "next/navigation";
 

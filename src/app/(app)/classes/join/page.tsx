@@ -1,4 +1,4 @@
-import { JoinClassForm } from "@/components/join-class-form";
+import { JoinClassForm } from "@/components/classe/join-class-form";
 import { getCurrentUser } from "@/lib/get-user";
 import { redirect } from "next/navigation";
 

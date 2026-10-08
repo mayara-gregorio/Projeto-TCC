@@ -8,7 +8,7 @@ import {
   Users,
   Settings,
 } from "lucide-react";
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../ui/sidebar";
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../../ui/sidebar";
 
 export function SidebarNav() {
   const pathname = usePathname();

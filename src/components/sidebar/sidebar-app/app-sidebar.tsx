@@ -6,7 +6,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import {AppDropdownMenu} from "@/components/sidebar/dropdown-menu"
+import {AppDropdownMenu} from "@/components/sidebar/sidebar-app/dropdown-menu"
 import { SidebarNav } from "./sidebar-nav"
 
 export function AppSidebar({titleDropdown}: {titleDropdown: React.ReactNode}) {

@@ -1,8 +1,8 @@
-
+import { Chat } from "@/components/chat/chat";
 export default function ConversationsPage() {
   return (
-    <>
-      <h1>Chat</h1>
-    </>
+    <main className="h-[calc(100vh-...)]">
+      <Chat />
+    </main>
   );
 }

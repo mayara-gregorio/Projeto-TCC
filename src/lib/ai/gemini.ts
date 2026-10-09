@@ -1,14 +1,18 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai"
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
 
-export async function askGemini(message: string) {
-  const interaction = await ai.interactions.create({
-    model: "gemini-3.8-flash",
-    input: message,
-  });
+type HistoryItem = { role: "user" | "assistant"; content: string }
 
-  return interaction.output_text;
+export async function askGemini(history: HistoryItem[]) {
+  const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: history.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
+  })
+
+  console.log("esta é a response da IA", response)
+  return response.text ?? ""
 }

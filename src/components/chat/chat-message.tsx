@@ -36,7 +36,6 @@ export function ChatMessage({
           {isUser ? (
             <>
               <AvatarImage
-                src="/avatars/user.png"
                 alt="Usuário"
               />
               <AvatarFallback>EU</AvatarFallback>
@@ -44,7 +43,6 @@ export function ChatMessage({
           ) : (
             <>
               <AvatarImage
-                src="/avatars/ai.png"
                 alt="Assistente"
               />
               <AvatarFallback>IA</AvatarFallback>

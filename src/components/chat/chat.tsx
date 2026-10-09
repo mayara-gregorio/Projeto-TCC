@@ -1,12 +1,9 @@
-
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
-import {
-  Marker,
-  MarkerContent,
-} from "@/components/ui/marker"
+import { Marker, MarkerContent } from "@/components/ui/marker"
 
 import { ChatMessage } from "./chat-message"
 import { ChatInput } from "./chat-input"
@@ -17,53 +14,101 @@ type Message = {
   content: string
 }
 
-export function Chat() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "Olá! Sou seu assistente de POO. Como posso ajudar você?",
-    },
-  ])
+const welcomeMessage: Message = {
+  id: "welcome",
+  role: "assistant",
+  content: "Olá! Sou seu assistente de POO. Como posso ajudar você?",
+}
 
+export function Chat({
+  initialConversationId,
+  subjectId,
+}: {
+  initialConversationId?: string
+  subjectId?: string
+}) {
+  const [messages, setMessages] = useState<Message[]>([welcomeMessage])
+  const [conversationId, setConversationId] = useState<string | undefined>(
+    initialConversationId
+  )
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  function handleSend(content: string) {
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content,
-    }
+  // Carrega o histórico quando já existe uma conversa
+  useEffect(() => {
+    if (!initialConversationId) return
 
-    setMessages((current) => [
-      ...current,
-      userMessage,
-    ])
+    fetch(`/api/chat?conversationId=${initialConversationId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.messages?.length) {
+          setMessages([welcomeMessage, ...data.messages])
+        }
+      })
+      .catch((error) => {
+        console.error("Falha ao carregar histórico:", error)
+      })
+  }, [initialConversationId])
 
+  async function handleSend(content: string) {
+    // Mostra a mensagem do usuário na hora (otimista)
+    const tempId = crypto.randomUUID()
+    setMessages((current) => [...current, { id: tempId, role: "user", content }])
     setLoading(true)
 
-    // Temporário: simula uma resposta da IA
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content:
-          "Essa é uma resposta temporária. Em seguida vamos conectar o Gemini aqui.",
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // subjectId é necessário para criar a conversa na primeira mensagem
+        body: JSON.stringify({ conversationId, subjectId, content }),
+      })
+
+      if (!res.ok) {
+        const data: { error?: string } = await res.json()
+        throw new Error(data.error ?? `Falha ao enviar mensagem (${res.status})`)
       }
 
+      const data = await res.json()
+
+      // Primeira mensagem de uma conversa nova: coloca o id da conversa na URL
+      // (sem recarregar o chat) e atualiza o histórico lateral
+      if (!conversationId && data.conversationId && subjectId) {
+        window.history.replaceState(
+          null,
+          "",
+          `/conversations/${subjectId}/chat/${data.conversationId}`
+        )
+        router.refresh()
+      }
+
+      setConversationId(data.conversationId)
+
+      // Troca a mensagem temporária pela salva e adiciona a resposta
+      setMessages((current) => [
+        ...current.filter((m) => m.id !== tempId),
+        data.userMessage,
+        data.assistantMessage,
+      ])
+    } catch (error) {
+      console.error("Falha ao enviar mensagem para /api/chat:", error)
       setMessages((current) => [
         ...current,
-        assistantMessage,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "Ocorreu um erro ao processar sua mensagem. Tente novamente.",
+        },
       ])
-
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
     <div className="flex h-full flex-col">
-        <h1>Chat</h1>
+      <h1>Chat</h1>
+
       <div className="flex-1 space-y-6 overflow-y-auto p-6">
         {messages.map((message) => (
           <ChatMessage
@@ -82,10 +127,7 @@ export function Chat() {
         )}
       </div>
 
-      <ChatInput
-        onSend={handleSend}
-        disabled={loading}
-      />
+      <ChatInput onSend={handleSend} disabled={loading} />
     </div>
   )
 }

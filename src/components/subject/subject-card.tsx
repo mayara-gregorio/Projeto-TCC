@@ -9,7 +9,7 @@ type ClassCardProps = {
   role: "teacher" | "student";
 };
 
-export function ClassCard({
+export function SubjectCard({
   id,
   name,
   role,
@@ -27,7 +27,7 @@ export function ClassCard({
           {role === "teacher" ? "Professor" : "Aluno"}
         </Badge>
 
-        <Link href={`/classes/${id}`}>
+        <Link href={`/subject/${id}`}>
           <ChevronRight />
         </Link>
       </div>

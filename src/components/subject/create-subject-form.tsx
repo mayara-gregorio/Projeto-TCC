@@ -22,39 +22,38 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-import { joinClass } from "@/actions/actions";
+import { createSubject } from "@/actions/actions";
 
-const createClassSchema = z.object({
-
-  classCode: z
+const createSubjectSchema = z.object({
+  subjectName: z
     .string()
-    .min(6, "O código da turma deve ter pelo menos 6 caracteres."),
+    .min(2, "O nome da turma deve ter pelo menos 2 caracteres."),
 });
 
-type JoinClassFormData = z.infer<typeof createClassSchema>;
+type CreateSubjectFormData = z.infer<typeof createSubjectSchema>;
 
-type JoinClassFormProps = {
+type CreateSubjectFormProps = {
   userId: string;
 };
 
-export function JoinClassForm({ userId }: JoinClassFormProps) {
+export function CreateSubjectForm({ userId }: CreateSubjectFormProps) {
   const router = useRouter();
 
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<JoinClassFormData>({
-    resolver: zodResolver(createClassSchema),
+  const form = useForm<CreateSubjectFormData>({
+    resolver: zodResolver(createSubjectSchema),
 
     defaultValues: {
-      classCode: "",
+      subjectName: "",
     },
   });
 
-  async function onSubmit(data: JoinClassFormData) {
+  async function onSubmit(data: CreateSubjectFormData) {
     setError(null);
 
-    const response = await joinClass(
-      data.classCode
+    const response = await createSubject(
+      data.subjectName,
     );
 
     if (!response) {
@@ -70,27 +69,28 @@ export function JoinClassForm({ userId }: JoinClassFormProps) {
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardDescription>
-          Crie uma nova turma.
+          Crie uma nova Disciplina.
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
+
             <Controller
-              name="classCode"
+              name="subjectName"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="classCode">
-                    Digite o código da Turma
+                  <FieldLabel htmlFor="subjectName">
+                    Nome da Disciplina
                   </FieldLabel>
 
                   <Input
                     {...field}
-                    id="classCode"
+                    id="subjectName"
                     type="text"
-                    placeholder="Código da Turma"
+                    placeholder="Nome da Disciplina"
                     aria-invalid={fieldState.invalid}
                   />
 
@@ -113,8 +113,8 @@ export function JoinClassForm({ userId }: JoinClassFormProps) {
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting
-                ? "Entrando..."
-                : "Entrar na Turma"}
+                ? "Criando..."
+                : "Criar Disciplina"}
             </Button>
 
           </FieldGroup>

@@ -22,38 +22,39 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-import { createClass } from "@/actions/actions";
+import { joinSubject } from "@/actions/actions";
 
 const createClassSchema = z.object({
-  className: z
+
+  classCode: z
     .string()
-    .min(2, "O nome da turma deve ter pelo menos 2 caracteres."),
+    .min(6, "O código da turma deve ter pelo menos 6 caracteres."),
 });
 
-type CreateClassFormData = z.infer<typeof createClassSchema>;
+type JoinClassFormData = z.infer<typeof createClassSchema>;
 
-type CreateClassFormProps = {
+type JoinClassFormProps = {
   userId: string;
 };
 
-export function CreateClassForm({ userId }: CreateClassFormProps) {
+export function JoinSubjectForm({ userId }: JoinClassFormProps) {
   const router = useRouter();
 
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<CreateClassFormData>({
+  const form = useForm<JoinClassFormData>({
     resolver: zodResolver(createClassSchema),
 
     defaultValues: {
-      className: "",
+      classCode: "",
     },
   });
 
-  async function onSubmit(data: CreateClassFormData) {
+  async function onSubmit(data: JoinClassFormData) {
     setError(null);
 
-    const response = await createClass(
-      data.className,
+    const response = await joinSubject(
+      data.classCode
     );
 
     if (!response) {
@@ -76,21 +77,20 @@ export function CreateClassForm({ userId }: CreateClassFormProps) {
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
-
             <Controller
-              name="className"
+              name="classCode"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="className">
-                    Nome da Turma
+                  <FieldLabel htmlFor="classCode">
+                    Digite o código da Turma
                   </FieldLabel>
 
                   <Input
                     {...field}
-                    id="className"
+                    id="classCode"
                     type="text"
-                    placeholder="Nome da Turma"
+                    placeholder="Código da Turma"
                     aria-invalid={fieldState.invalid}
                   />
 
@@ -113,8 +113,8 @@ export function CreateClassForm({ userId }: CreateClassFormProps) {
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting
-                ? "Criando..."
-                : "Criar Turma"}
+                ? "Entrando..."
+                : "Entrar na Turma"}
             </Button>
 
           </FieldGroup>

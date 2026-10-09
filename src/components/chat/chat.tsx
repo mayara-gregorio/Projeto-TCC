@@ -17,7 +17,7 @@ type Message = {
 const welcomeMessage: Message = {
   id: "welcome",
   role: "assistant",
-  content: "Olá! Sou seu assistente de POO. Como posso ajudar você?",
+  content: "Olá! Sou seu assistente. Como posso ajudar você?",
 }
 
 export function Chat({
@@ -34,7 +34,6 @@ export function Chat({
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  // Carrega o histórico quando já existe uma conversa
   useEffect(() => {
     if (!initialConversationId) return
 
@@ -51,7 +50,6 @@ export function Chat({
   }, [initialConversationId])
 
   async function handleSend(content: string) {
-    // Mostra a mensagem do usuário na hora (otimista)
     const tempId = crypto.randomUUID()
     setMessages((current) => [...current, { id: tempId, role: "user", content }])
     setLoading(true)
@@ -71,8 +69,6 @@ export function Chat({
 
       const data = await res.json()
 
-      // Primeira mensagem de uma conversa nova: coloca o id da conversa na URL
-      // (sem recarregar o chat) e atualiza o histórico lateral
       if (!conversationId && data.conversationId && subjectId) {
         window.history.replaceState(
           null,
@@ -84,7 +80,6 @@ export function Chat({
 
       setConversationId(data.conversationId)
 
-      // Troca a mensagem temporária pela salva e adiciona a resposta
       setMessages((current) => [
         ...current.filter((m) => m.id !== tempId),
         data.userMessage,

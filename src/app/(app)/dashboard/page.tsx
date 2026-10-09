@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/get-user";
 import { CreateSubjectButton } from "@/components/subject/create-subject-button";
 import { createClient } from "@/lib/supabase/server";
-import { JoinClassButton } from "@/components/subject/join-subject-button";
+import { JoinSubjectButton } from "@/components/subject/join-subject-button";
 import { SubjectCard } from "@/components/subject/subject-card";
 
 export default async function DashboardPage() {
@@ -42,13 +42,13 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold" style={{ color: "#2f2e31" }}>
             Olá, {user.name}
           </h1>
-          <span>Aqui está um resumo das suas turmas</span>
+          <span>Aqui está um resumo das suas disciplinas</span>
         </div>
 
         <div>
           <Card className="w-64 p-4">
             <h2 className="text-xl font-semibold">{subjectList.length}</h2>
-            <p className="text-muted-foreground">Turmas</p>
+            <p className="text-muted-foreground">Disciplinas</p>
           </Card>
         </div>
       </header>
@@ -56,12 +56,12 @@ export default async function DashboardPage() {
       <main>
         <div className="flex flex-col gap-4">
           {errorSubject && (
-            <p className="text-red-600">Não foi possível carregar suas turmas.</p>
+            <p className="text-red-600">Não foi possível carregar suas disciplinas.</p>
           )}
 
           {!errorSubject && subjectList.length === 0 && (
             <p className="text-muted-foreground">
-              Você ainda não está em nenhuma turma.
+              Você ainda não está em nenhuma disciplina.
             </p>
           )}
 
@@ -75,6 +75,7 @@ export default async function DashboardPage() {
                   ? "teacher"
                   : "student"
               }
+              goToSubject={true}
             />
           ))}
         </div>
@@ -82,7 +83,7 @@ export default async function DashboardPage() {
 
       <footer className="flex gap-2">
         <CreateSubjectButton />
-        <JoinClassButton />
+        <JoinSubjectButton />
       </footer>
     </div>
   );

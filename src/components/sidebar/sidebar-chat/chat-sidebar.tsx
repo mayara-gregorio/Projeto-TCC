@@ -6,13 +6,24 @@ import {
 } from "@/components/ui/sidebar"
 import { SidebarNav } from "./chat-sidebar-nav"
 
-export function ChatSidebar() {
+type Conversation = {
+  id: string;
+  title: string | null;
+  created_at: string;
+};
+
+type ChatSidebarProps = {
+  subjectId: string
+  conversations: Conversation[];
+}
+
+export function ChatSidebar({ subjectId, conversations }: ChatSidebarProps) {
   return (
-    <Sidebar className="pb-6" side="right">
-      <SidebarHeader style={{}}>Conversas</SidebarHeader>
+    <Sidebar side="right" className="hidden border-l md:flex">
+      <SidebarHeader>Conversas</SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarNav/>
+          <SidebarNav subjectId={subjectId} conversations={conversations ?? []} />
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

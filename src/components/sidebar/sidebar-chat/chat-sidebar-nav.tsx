@@ -2,32 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MessageCircle, CirclePlus } from "lucide-react";
 import {
-  MessageCircle,
-  CirclePlus,
-} from "lucide-react";
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, Sidebar } from "../../ui/sidebar";
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
 
-export function SidebarNav() {
+type Conversation = { id: string; title: string | null; created_at: string };
+
+export function SidebarNav({
+  subjectId,
+  conversations,
+}: {
+  subjectId: string;
+  conversations: Conversation[];
+}) {
   const pathname = usePathname();
-  return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton>
-            <CirclePlus />
-            <span>Nova Conversa</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+  const newChatHref = `/conversations/${subjectId}/chat`;
 
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            isActive={pathname.startsWith("/conversations")}
-            render={<Link href="/conversations" />}
-          >
-            <MessageCircle />
-            <span>Dúvida sobre Encapsulamento</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          isActive={pathname === newChatHref}
+          render={<Link href={newChatHref} />}
+        >
+          <CirclePlus />
+          <span>Nova Conversa</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
+      {conversations.map((conversation) => {
+        const href = `${newChatHref}/${conversation.id}`;
+        return (
+          <SidebarMenuItem key={conversation.id}>
+            <SidebarMenuButton
+              isActive={pathname === href}
+              render={<Link href={href} />}
+            >
+              <MessageCircle />
+              <span className="truncate">
+                {conversation.title ?? "Nova conversa"}
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
+    </SidebarMenu>
   );
 }

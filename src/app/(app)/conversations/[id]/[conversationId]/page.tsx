@@ -9,7 +9,6 @@ export default async function OldChatPage({
 }) {
   const { id, conversationId } = await params;
 
-  // key faz o chat "zerar" ao trocar de conversa
   return (
     <Chat
       key={conversationId}

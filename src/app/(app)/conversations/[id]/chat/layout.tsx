@@ -1,6 +1,5 @@
 // /conversations/[id]/chat
 // Divide a tela: chat no meio e histórico de conversas da matéria à direita.
-import { ConversationHistory } from "@/components/chat/conversation-history";
 
 export default async function SubjectChatLayout({
   children,
@@ -14,7 +13,6 @@ export default async function SubjectChatLayout({
   return (
     <div className="flex h-full">
       <div className="flex-1">{children}</div>
-      <ConversationHistory subjectId={id} />
     </div>
   );
 }

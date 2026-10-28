@@ -58,7 +58,6 @@ export function Chat({
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // subjectId é necessário para criar a conversa na primeira mensagem
         body: JSON.stringify({ conversationId, subjectId, content }),
       })
 
@@ -110,6 +109,7 @@ export function Chat({
             key={message.id}
             role={message.role}
             content={message.content}
+            
           />
         ))}
 

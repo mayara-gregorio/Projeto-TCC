@@ -43,7 +43,6 @@ export default async function ConversationsPage() {
         </div>
       </header>
 
-      {/* Lista */}
       <main>
         {subjects && subjects.length > 0 ? (
           <ul className="grid gap-3">

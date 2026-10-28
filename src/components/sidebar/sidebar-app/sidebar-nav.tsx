@@ -37,16 +37,6 @@ export function SidebarNav() {
 
       <SidebarMenuItem>
         <SidebarMenuButton
-          isActive={pathname.startsWith("/classes")}
-          render={<Link href="/classes" />}
-        >
-          <Users />
-          <span>Turmas</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-
-      <SidebarMenuItem>
-        <SidebarMenuButton
           isActive={pathname.startsWith("/settings")}
           render={<Link href="/settings" />}
         >

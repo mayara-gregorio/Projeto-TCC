@@ -28,7 +28,12 @@ type ChatMessageProps = {
   content: string
 }
 
-// Visual de cada parte do Markdown (negrito, listas, código, tabelas...)
+function ajustarFormulas(texto: string) {
+  return texto
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, f) => `$$${f}$$`)
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, f) => `$${f}$`)
+}
+
 const markdownComponents: Components = {
   p: ({ children }) => <p className="mb-2 leading-relaxed last:mb-0">{children}</p>,
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
@@ -42,7 +47,6 @@ const markdownComponents: Components = {
       {children}
     </a>
   ),
-  // Código em linha (`assim`) ou em bloco (```java ... ```)
   code: ({ className, children }) =>
     /language-/.test(className ?? "") ? (
       <code className={className}>{children}</code>
@@ -102,7 +106,7 @@ export function ChatMessage({
                 rehypePlugins={[rehypeKatex]}
                 components={markdownComponents}
               >
-                {content}
+                {ajustarFormulas(content)}
               </ReactMarkdown>
             )}
           </BubbleContent>

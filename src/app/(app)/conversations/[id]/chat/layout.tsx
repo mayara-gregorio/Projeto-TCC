@@ -1,5 +1,3 @@
-// /conversations/[id]/chat
-// Divide a tela: chat no meio e histórico de conversas da matéria à direita.
 
 export default async function SubjectChatLayout({
   children,

@@ -1,9 +1,7 @@
-// app/api/chat/route.ts
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server" // seu client do @supabase/ssr
-import { askGemini } from "@/lib/ai/gemini"
+import { createClient } from "@/lib/supabase/server" 
+import { askLocal } from "@/lib/ai/local"
 
-// Carrega o histórico de uma conversa
 export async function GET(request: Request) {
   const supabase = await createClient()
 
@@ -34,7 +32,6 @@ export async function GET(request: Request) {
   return NextResponse.json({ messages: data })
 }
 
-// Recebe uma mensagem, salva, consulta o Gemini e salva a resposta
 export async function POST(request: Request) {
   console.info("[api/chat] POST recebido")
 
@@ -62,10 +59,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   }
 
-  // 1. Cria a conversa se ainda não existir
   let conversationId = incomingId
 
-  console.log(subjectId, "aaaaaaaaaaaa")
   if (!conversationId) {
     if (!subjectId) {
       return NextResponse.json(
@@ -85,7 +80,6 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      // 42501 = bloqueado pelo RLS (usuário não é membro da matéria)
       const status = error.code === "42501" ? 403 : 500
       return NextResponse.json({ error: error.message }, { status })
     }
@@ -93,7 +87,6 @@ export async function POST(request: Request) {
     conversationId = data.id as string
   }
 
-  // 2. Salva a mensagem do usuário
   const { data: userMessage, error: userError } = await supabase
     .from("messages")
     .insert({ conversation_id: conversationId, role: "user", content })
@@ -104,7 +97,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: userError.message }, { status: 500 })
   }
 
-  // 3. Busca o histórico (já inclui a mensagem que acabou de ser salva)
   const { data: history, error: historyError } = await supabase
     .from("messages")
     .select("role, content")
@@ -118,20 +110,18 @@ export async function POST(request: Request) {
     )
   }
 
-  // 4. Chama o Gemini com o histórico completo
   let assistantText: string
 
   try {
-    assistantText = await askGemini(history)
+    assistantText = await askLocal(history)
   } catch (error) {
-    console.error("[api/chat] Falha ao consultar o Gemini:", error)
+    console.error("[api/chat] Falha ao consultar a IA local:", error)
     return NextResponse.json(
       { error: "Falha ao consultar a IA" },
       { status: 502 }
     )
   }
 
-  // 5. Salva a resposta da IA
   const { data: assistantMessage, error: assistantError } = await supabase
     .from("messages")
     .insert({
@@ -146,7 +136,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: assistantError.message }, { status: 500 })
   }
 
-  // 6. Devolve tudo para o front
   return NextResponse.json({
     conversationId,
     userMessage,

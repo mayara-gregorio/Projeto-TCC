@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   MessageCircle,
-  Users,
   Settings,
+  Users,
 } from "lucide-react";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../../ui/sidebar";
 
@@ -24,17 +24,24 @@ export function SidebarNav() {
           <span>Início</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
-
       <SidebarMenuItem>
-        <SidebarMenuButton
-          isActive={pathname.startsWith("/conversations")}
-          render={<Link href="/conversations" />}
-        >
-          <MessageCircle />
-          <span>Conversas</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-
+          <SidebarMenuButton
+            isActive={pathname === "/conversations"}
+            render={<Link href="/conversations" />}
+          >
+            <MessageCircle />
+            <span>Conversas</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            isActive={pathname === "/subjects"}
+            render={<Link href="/subjects" />}
+          >
+            <Users />
+            <span>Disciplinas</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       <SidebarMenuItem>
         <SidebarMenuButton
           isActive={pathname.startsWith("/settings")}

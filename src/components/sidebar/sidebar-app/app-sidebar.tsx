@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import {AppDropdownMenu} from "@/components/sidebar/sidebar-app/dropdown-menu"
 import { SidebarNav } from "./sidebar-nav"
 
-export function AppSidebar({titleDropdown}: {titleDropdown: React.ReactNode}) {
+export async function AppSidebar({titleDropdown}: {titleDropdown: React.ReactNode}) {
+
   return (
     <Sidebar className="pb-6">
       <SidebarHeader style={{}}>LearnSync</SidebarHeader>

@@ -3,7 +3,7 @@ import Link from "next/link";
 export function CreateSubjectButton() {
   return (
     <Button variant={"default"}>
-      <Link href="/subject/create">
+      <Link href="/subjects/create">
         Criar Disciplina
       </Link>
     </Button>

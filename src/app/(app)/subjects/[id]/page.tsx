@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { TopicCard } from "@/components/topic/topic-card";
 
 export default async function SubjectPage({
   params,
@@ -41,16 +42,13 @@ export default async function SubjectPage({
     notFound();
   }
 
-  // Papel do usuário logado nesta matéria
   const role = subjectItem.subject_members[0]?.role;
   const isTeacher = role === "teacher";
 
-  // Códigos de convite (podem vir como lista ou objeto; aluno não recebe)
   const invites = Array.isArray(subjectItem.subject_invites)
     ? subjectItem.subject_invites[0]
     : subjectItem.subject_invites;
 
-  // Quantidade de alunos (só o professor consegue contar, por causa do RLS)
   let studentCount = 0;
   if (isTeacher) {
     const { count } = await supabase
@@ -93,18 +91,15 @@ export default async function SubjectPage({
           ) : (
             <p>Códigos de convite não encontrados.</p>
           )}
+          <TopicCard />
         </div>
       )}
 
       {role === "student" && (
         <div>
-          <h2>Isso só aluno vê</h2>
+          <h2>Detalhes da Disciplina aqui</h2>
         </div>
       )}
-
-      <div>
-        <h2>Isso professores e alunos veem</h2>
-      </div>
     </div>
   );
 }

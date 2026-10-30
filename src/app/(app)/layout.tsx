@@ -3,9 +3,9 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getCurrentUser } from "@/lib/get-user";
 import { redirect } from "next/navigation";
 
-export default async function AppLayout({ children }: LayoutProps<"/">) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
-
+  console.log("User in AppLayout:", user);
   if (!user) {
       redirect("/login");
   }

@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User } from "lucide-react"
+import Link from "next/link";
 
 export function AppDropdownMenu({title}: {title: React.ReactNode}) {
 
@@ -25,10 +26,7 @@ export function AppDropdownMenu({title}: {title: React.ReactNode}) {
       <DropdownMenuContent className="w-40" align="start">
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuItem>
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem render={<Link href={"/settings"}/>}>
             Settings
           </DropdownMenuItem>
         </DropdownMenuGroup>

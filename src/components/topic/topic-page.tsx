@@ -71,7 +71,7 @@ export async function TopicsPage({ subjectId }: {subjectId: string}) {
         const materials = await Promise.all(
         (topic.materials ?? []).map(async (material) => {
             const { data } = await supabase.storage
-            .from("subject-materials")
+            .from("storage_materials")
             .createSignedUrl(material.storage_path, 3600);
 
             return {

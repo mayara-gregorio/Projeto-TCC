@@ -1,26 +1,21 @@
-import { Card } from "@/components/ui/card";
+
 import { getCurrentUser } from "@/lib/get-user";
-import { CreateSubjectButton } from "@/components/subject/create-subject-button";
 import { createClient } from "@/lib/supabase/server";
-import { JoinSubjectButton } from "@/components/subject/join-subject-button";
-import { SubjectCard } from "@/components/subject/subject-card";
+import { DashboardContent } from "@/components/dashboard/dashboard-content";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
   const user = await getCurrentUser();
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
-  // Matérias em que o usuário é membro (professor ou aluno)
-  const { data: subjects, error: errorSubject } = await supabase
+  const supabase = await createClient();
+
+  // Busca disciplinas do usuário
+  const { data: subjects, error: subjectsError } = await supabase
     .from("subjects")
     .select(`
       id,
       name,
-      created_by,
       subject_members!inner (
         user_id,
         role
@@ -29,62 +24,63 @@ export default async function DashboardPage() {
     .eq("subject_members.user_id", user.id)
     .order("name");
 
-  if (errorSubject) {
-    console.error("Erro ao buscar disciplinas:", errorSubject);
+  if (subjectsError) {
+    console.error("Erro ao buscar disciplinas:", subjectsError);
   }
 
-  const subjectList = subjects ?? [];
+  const disciplinas = (subjects ?? []).map((subject) => ({
+    id: subject.id,
+    name: subject.name,
+    role:
+      subject.subject_members[0]?.role === "teacher"
+        ? ("teacher" as const)
+        : ("student" as const),
+  }));
+
+  // Disciplinas em que o usuário é professor
+  const teacherSubjectIds = disciplinas
+    .filter((subject) => subject.role === "teacher")
+    .map((subject) => subject.id);
+
+  // Indicadores continuam sendo calculados com messages
+  let dificuldades: {
+    subject_id: string;
+    subject_name: string;
+    topic_id: string | null;
+    topic_title: string;
+    total: number;
+  }[] = [];
+
+  let erroIndicadores = false;
+
+  if (teacherSubjectIds.length > 0) {
+    const { data, error } = await supabase.rpc(
+      "dashboard_dificuldades"
+    );
+
+    if (error) {
+      console.error("Erro ao buscar indicadores:", error);
+      erroIndicadores = true;
+    } else {
+      dificuldades = (data ?? []).map((item: any) => ({
+        subject_id: item.subject_id,
+        subject_name: item.subject_name,
+        topic_id: item.topic_id,
+        topic_title: item.topic_title,
+        total: Number(item.total),
+      }));
+    }
+  }
+
+  
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <header>
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: "#2f2e31" }}>
-            Olá, {user.name}
-          </h1>
-          <span>Aqui está um resumo das suas disciplinas</span>
-        </div>
-
-        <div>
-          <Card className="w-64 p-4">
-            <h2 className="text-xl font-semibold">{subjectList.length}</h2>
-            <p className="text-muted-foreground">Disciplinas</p>
-          </Card>
-        </div>
-      </header>
-
-      <main>
-        <div className="flex flex-col gap-4">
-          {errorSubject && (
-            <p className="text-red-600">Não foi possível carregar suas disciplinas.</p>
-          )}
-
-          {!errorSubject && subjectList.length === 0 && (
-            <p className="text-muted-foreground">
-              Você ainda não está em nenhuma disciplina.
-            </p>
-          )}
-
-          {subjectList.map((subjectItem) => (
-            <SubjectCard
-              key={subjectItem.id}
-              id={subjectItem.id}
-              name={subjectItem.name}
-              role={
-                subjectItem.subject_members[0]?.role === "teacher"
-                  ? "teacher"
-                  : "student"
-              }
-              goToSubject={true}
-            />
-          ))}
-        </div>
-      </main>
-
-      <footer className="flex gap-2">
-        <CreateSubjectButton />
-        <JoinSubjectButton />
-      </footer>
-    </div>
+    <DashboardContent
+      userName={user.name ?? "Usuário"}
+      subjects={disciplinas}
+      difficulties={dificuldades}
+      subjectsError={Boolean(subjectsError)}
+      indicatorsError={erroIndicadores}
+    />
   );
 }

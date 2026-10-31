@@ -37,7 +37,7 @@ export function Chat({
   useEffect(() => {
     if (!initialConversationId) return
 
-    fetch(`/api/chat?conversationId=${initialConversationId}`)
+    fetch(`/api/conversations?conversationId=${initialConversationId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.messages?.length) {
@@ -55,13 +55,14 @@ export function Chat({
     setLoading(true)
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId, subjectId, content }),
       })
 
       if (!res.ok) {
+        console.log("res ", res)
         const data: { error?: string } = await res.json()
         throw new Error(data.error ?? `Falha ao enviar mensagem (${res.status})`)
       }
@@ -85,7 +86,7 @@ export function Chat({
         data.assistantMessage,
       ])
     } catch (error) {
-      console.error("Falha ao enviar mensagem para /api/chat:", error)
+      console.error("Falha ao enviar mensagem para /api/conversations:", error)
       setMessages((current) => [
         ...current,
         {

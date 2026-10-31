@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/get-user";
 import { CreateSubjectButton } from "@/components/subject/create-subject-button";
 import { createClient } from "@/lib/supabase/server";
-import { JoinClassButton } from "@/components/subject/join-subject-button";
+import { JoinSubjectButton } from "@/components/subject/join-subject-button";
 import { SubjectCard } from "@/components/subject/subject-card";
 import { ButtonGoChat } from "@/components/chat/button-go-chat";
 
@@ -70,6 +70,7 @@ export default async function ConversationsPage({params,}:{params: Promise<{id: 
               role={subjectItem.subject_members[0]?.role === "teacher"
                 ? "teacher"
                 : "student"}
+              goToSubject
             />
           ))}
         </div>
@@ -77,7 +78,7 @@ export default async function ConversationsPage({params,}:{params: Promise<{id: 
 
       <footer className="flex gap-2">
         <CreateSubjectButton />
-        <JoinClassButton/>
+        <JoinSubjectButton/>
         <ButtonGoChat id={id}/>
       </footer>
     </div>

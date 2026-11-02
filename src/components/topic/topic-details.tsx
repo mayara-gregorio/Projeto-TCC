@@ -1,8 +1,10 @@
+"use client"
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink, FileText, MessageCircle, MessageSquare, Presentation, UserGroup, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export type TopicSummary = {
   id: string;
@@ -34,7 +36,7 @@ type Props = {
   slides: SlideSource[];
   timeline: DayCount[];
   hasError?: boolean;
-  groups: DoubtGroup[]
+  summaries: TopicSummary[];
 };
 
 export type DoubtGroup = {
@@ -47,8 +49,9 @@ export type DoubtGroup = {
 
 export function TopicDetails({
   subjectId, subjectName, topicName, description,
-  totalQuestions, uniqueStudents, slides, hasError, groups, topicId
+  totalQuestions, uniqueStudents, slides, hasError, summaries
 }: Props) {
+  const [showDoubts, setShowDoubts] = useState(true);
 
   
   const maxSlides = Math.max(1, ...slides.map((slide) => slide.count));
@@ -85,63 +88,134 @@ export function TopicDetails({
         ))}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><BookOpen className="size-4" /> Slides mais recuperados</CardTitle></CardHeader>
-          <CardContent className="space-y-5 overflow-y-auto max-h-[50vh]">
-            {slides.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhum trecho recuperado neste tópico.</p>
-            ) : slides.map((slide) => (
-              <div key={slide.key} className="space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{slide.start === slide.end ? `Slide ${slide.start}` : `Slides ${slide.start}–${slide.end}`}</p>
-                    <p className="break-words text-xs text-muted-foreground">{slide.filename}</p>
+      <section className="flex flex-col gap-3">
+        <div className="flex justify-end">
+          <Badge 
+          className={!showDoubts ? " bg-primary text-primary-foreground pointer-events-none cursor-default" : "bg-secondary text-secondary-foreground"} 
+          variant="secondary" 
+          onClick={() => setShowDoubts(!showDoubts)}>
+            Ver Dúvidas
+          </Badge>
+          <Badge className={showDoubts ? "bg-primary text-primary-foreground pointer-events-none cursor-default" : "bg-secondary text-secondary-foreground "} variant="secondary" onClick={() => setShowDoubts(!showDoubts)}>
+            Ver Trechos recuperados
+          </Badge>
+        </div>
+        {showDoubts ? (
+          <div>
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><BookOpen className="size-4" /> Slides mais recuperados</CardTitle></CardHeader>
+              <CardContent className="space-y-5 overflow-y-auto max-h-[50vh]">
+                {slides.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhum trecho recuperado neste tópico.</p>
+                ) : slides.map((slide) => (
+                  <div key={slide.key} className="space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{slide.start === slide.end ? `Slide ${slide.start}` : `Slides ${slide.start}–${slide.end}`}</p>
+                        <p className="break-words text-xs text-muted-foreground">{slide.filename}</p>
+                      </div>
+                      <Badge variant="secondary">{slide.count} {slide.count === 1 ? "recuperação" : "recuperações"}</Badge>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${(slide.count / maxSlides) * 100}%` }} />
+                    </div>
+                    {slide.url && <a href={slide.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline"><FileText className="size-3" /> Abrir PDF <ExternalLink className="size-3" /></a>}
                   </div>
-                  <Badge variant="secondary">{slide.count} {slide.count === 1 ? "recuperação" : "recuperações"}</Badge>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${(slide.count / maxSlides) * 100}%` }} />
-                </div>
-                {slide.url && <a href={slide.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline"><FileText className="size-3" /> Abrir PDF <ExternalLink className="size-3" /></a>}
-              </div>
-            ))}
-          </CardContent>
-            <p className="text-xs text-muted-foreground mx-4">São fragmentos recuperados pela busca RAG, não necessariamente citados pela IA.</p>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Agrupamento de dúvidas</CardTitle>
-            <p className="text-sm text-muted-foreground">Agrupamento das perguntas dos estudantes.</p>
-          </CardHeader>
-          <CardContent className="space-y-3 overflow-y-auto max-h-[50vh]">
-            {groups.length === 0 ? (
-              <p className="py-5 text-sm text-muted-foreground">Ainda não existem agrupamentos para este tópico.</p>
-            ) : groups.map((item) => (
-              <Link href={`/topics/${topicId}/${item.id}`} key={item.id} className="block">
-              <div key={item.id} className="space-y-3 rounded-lg border p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-medium">{item.title}</h3>
-                </div>
-                <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
-                  {item.summary}
+                ))}
+              </CardContent>
+                <p className="text-xs text-muted-foreground mx-4">São fragmentos recuperados pela busca RAG, não necessariamente citados pela IA.</p>
+            </Card>
+            <Card></Card>
+          </div>
+        ):(
+          <div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Agrupamento de dúvidas</CardTitle>
+              <p className="text-sm text-muted-foreground">Agrupamento das perguntas dos estudantes.</p>
+            </CardHeader>
+            
+            <CardContent className="max-h-[100vh] space-y-3 overflow-y-auto">
+              {summaries.length === 0 ? (
+                <p className="py-5 text-sm text-muted-foreground">
+                  Ainda não existem dúvidas resumidas neste tópico.
                 </p>
-                <div className="flex gap-4">
-                  <div className="flex gap-2">
-                    <UserGroup size={16}/>
-                    <p> {item.uniqueStudents} Alunos</p>
+              ) : (
+                summaries.map((item) => (
+                  <div
+                    key={item.id}
+                    className="space-y-3 rounded-lg border p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <h3 className="text-sm font-medium">
+                        {item.title}
+                      </h3>
+
+                      {item.materialCoverage === "covered" && (
+                        <Badge variant="secondary" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
+                          Cobertura identificada
+                        </Badge>
+                      )}
+
+                      {item.materialCoverage === "not_covered" && (
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 dark:bg-orange-950 dark:text-orange-300">
+                          Cobertura insuficiente
+                        </Badge>
+                      )}
+
+                      {item.materialCoverage === "uncertain" && (
+                        <Badge variant="outline" className="bg-gray-50 text-gray-700 dark:bg-gray-950 dark:text-gray-300">
+                          Cobertura não verificada
+                        </Badge>
+                      )}
+                    </div>
+
+                    <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
+                      {item.summary}
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                      <span>Tópico: {topicName}</span>
+
+                      <span>
+                        {new Date(item.updatedAt).toLocaleDateString(
+                          "pt-BR"
+                        )}
+                      </span>
+                    </div>
+
+                    {item.materialCoverage === "not_covered" && (
+                      <div className="space-y-2 rounded-md bg-muted/50 p-3">
+                        <p className="text-xs font-medium">
+                          Possível lacuna no material
+                        </p>
+
+                        <p className="text-xs text-muted-foreground">
+                          Não foi identificada cobertura suficiente
+                          nos trechos recuperados do material.
+                        </p>
+
+                        {item.materialRecommendation && (
+                          <p className="text-xs">
+                            <strong>Inclusão de material: </strong>
+                            {item.materialRecommendation}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex gap-2">
-                    <MessageCircle size={16}/>
-                    <p> {item.totalQuestions} Requisições</p>
-                  </div>
-                </div>
-              </div>
-              </Link>
-            ))}
-            {groups.length >= 100 && <p className="text-xs text-muted-foreground">Exibindo os 100 resumos mais recentes.</p>}
-          </CardContent>
-        </Card>
+                ))
+              )}
+
+              {summaries.length >= 100 && (
+                <p className="text-xs text-muted-foreground">
+                  Exibindo os 100 resumos mais recentes.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          </div>
+        )}
       </section>
     </div>
   );

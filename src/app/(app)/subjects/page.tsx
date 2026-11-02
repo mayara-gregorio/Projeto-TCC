@@ -153,7 +153,7 @@ export default async function SubjectPage() {
                 {studentSubjects.map((subject) => (
                   <li key={subject.id}>
                     <Link
-                      href={`/subjects/${subject.id}/chat`}
+                      href={`/subjects/${subject.id}/conversations`}
                       className="group flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
                     >
                       <div className="flex min-w-0 items-center gap-3">

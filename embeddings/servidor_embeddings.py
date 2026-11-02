@@ -8,7 +8,11 @@ from sentence_transformers import SentenceTransformer
 NOME_MODELO = "intfloat/multilingual-e5-base"
 
 # carrega o modelo uma vez, ao iniciar o servidor
-modelo = SentenceTransformer(NOME_MODELO)
+# roda na CPU para deixar a memória da placa de vídeo livre para o Qwen
+modelo = SentenceTransformer(
+    NOME_MODELO,
+    device="cpu",
+)
 
 app = FastAPI()
 

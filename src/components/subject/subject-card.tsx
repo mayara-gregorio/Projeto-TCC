@@ -29,7 +29,7 @@ export function SubjectCard({
           {role === "teacher" ? "Professor" : "Aluno"}
         </Badge>
         {goToSubject && (
-          <Link href={`/subject/${id}`}>
+          <Link href={`/subjects/${id}`}>
             <ChevronRight />
           </Link>
         )}

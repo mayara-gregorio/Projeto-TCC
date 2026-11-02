@@ -6,7 +6,6 @@ export default async function NewTopicsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-console.log("paramssssss", id)
   return <TopicsPage key="nova" subjectId={id} />;
 }
 

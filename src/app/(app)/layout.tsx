@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
-  console.log("User in AppLayout:", user);
   if (!user) {
       redirect("/login");
   }

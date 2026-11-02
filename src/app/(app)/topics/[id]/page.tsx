@@ -4,16 +4,33 @@ import {
   TopicDetails,
   type DayCount,
   type SlideSource,
-  type TopicSummary,
 } from "@/components/topic/topic-details";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
-type ConversationInfo = {
-  user_id: string;
-  subject_id: string;
+type SlideData = Omit<SlideSource, "url">;
+
+type DetailsData = {
+  subjectId: string;
+  subjectName: string;
+  topicId: string
+  topicName: string;
+  description: string | null;
+  totalQuestions: number;
+  uniqueStudents: number;
+  timeline: DayCount[];
+  slides: SlideData[];
+  groups: DoubtGroup[]
+};
+
+export type DoubtGroup = {
+  id: string;
+  title: string;
+  summary: string;
+  totalQuestions: number;
+  uniqueStudents: number;
 };
 
 export default async function TopicPage({ params }: Props) {
@@ -22,212 +39,90 @@ export default async function TopicPage({ params }: Props) {
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (authError || !user) redirect("/login");
 
-  const { data: topic, error: topicError } = await supabase
-    .from("topics")
-    .select("id, title, description, subject_id")
-    .eq("id", topicId)
-    .maybeSingle();
-
-  if (topicError || !topic) notFound();
-
-  // Somente professores desta disciplina podem acessar os detalhes.
-  const { data: membership, error: membershipError } = await supabase
-    .from("subject_members")
-    .select("user_id")
-    .eq("subject_id", topic.subject_id)
-    .eq("user_id", user.id)
-    .eq("role", "teacher")
-    .maybeSingle();
-
-  if (membershipError || !membership) notFound();
-
-  const { data: subject, error: subjectError } = await supabase
-    .from("subjects")
-    .select("name")
-    .eq("id", topic.subject_id)
-    .maybeSingle();
-
-  if (subjectError) console.error("Erro ao buscar disciplina:", subjectError);
-
-  // A contagem usa messages; os textos das perguntas não são exibidos.
-  const { count: totalCount, error: countError } = await supabase
-    .from("messages")
-    .select("id", { count: "exact", head: true })
-    .eq("role", "user")
-    .eq("topic_id", topicId);
-
-  if (countError) console.error("Erro ao contar dúvidas:", countError);
-  const totalQuestions = totalCount ;
-  console.log("total de dúvidas enviadas", totalQuestions)
-
-
-  // Metadados para o gráfico, alunos distintos e referências.
-  // O limite de 1000 é provisório: para um volume maior, use uma RPC agregada.
-  const { data: questions, error: questionsError } = await supabase
-    .from("messages")
-    .select("id, created_at, conversations!inner(user_id, subject_id)")
-    .eq("role", "user")
-    .eq("topic_id", topicId)
-    .eq("conversations.subject_id", topic.subject_id)
-    .order("created_at", { ascending: false })
-    .limit(1000);
-  
-  console.log("DIAGNÓSTICO DO TÓPICO", {
-    topicId,
-    subjectId: topic.subject_id,
-    totalCount,
-    countError,
-    quantidadeDePerguntas: questions?.length,
-    questionsError,
-  });
-
-  if (questionsError) console.error("Erro ao buscar metadados:", questionsError);
-  const questionList = questions ?? [];
-
-  const studentIds = new Set(
-    questionList
-      .map((question) => {
-        const relation = question.conversations;
-        const conversation = (Array.isArray(relation)
-          ? relation[0]
-          : relation) as ConversationInfo | undefined;
-        return conversation?.user_id;
-      })
-      .filter((id): id is string => typeof id === "string")
+  // A RPC valida que o usuário é professor da disciplina e
+  // devolve apenas estatísticas, sem o conteúdo das mensagens.
+  const { data: rawDetails, error: detailsError } = await supabase.rpc(
+    "detalhes_topico",
+    { p_topic_id: topicId }
   );
-  const uniqueStudents = studentIds.size;
 
-  // Últimos sete dias usando datas UTC, coerentes com os timestamps consultados.
-  const now = new Date();
-  const daily = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (6 - index))
-    );
-    return {
-      iso: date.toISOString().slice(0, 10),
-      day: date.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        timeZone: "UTC",
-      }),
-    };
-  });
+  
+  if (detailsError) {
+    console.error("Erro ao buscar detalhes do tópico:", detailsError);
 
-  const timeline: DayCount[] = daily.map(({ iso, day }) => ({
-    day,
-    count: questionList.filter((question) => question.created_at?.slice(0, 10) === iso)
-      .length,
-  }));
-
-  // Resumos da IA por conversa e tópico (sem exibir o texto original da pergunta).
-  const { data: summaryData, error: summariesError } = await supabase
-    .from("conversation_summaries")
-    .select("id, title, summary, updated_at, conversations!inner(subject_id)")
-    .eq("topic_id", topicId)
-    .eq("conversations.subject_id", topic.subject_id)
-    .order("updated_at", { ascending: false })
-    .limit(100);
-
-  if (summariesError) console.error("Erro ao buscar resumos:", summariesError);
-
-  const summaries: TopicSummary[] = (summaryData ?? []).map((item) => ({
-    id: item.id,
-    title: item.title,
-    summary: item.summary,
-    updatedAt: item.updated_at,
-  }));
-
-  console.log("DIAGNÓSTICO DOS RESUMOS", {
-  quantidade: summaryData?.length,
-  summariesError,
-});
-
-  // Conta as recuperações dos chunks associados às perguntas classificadas no tópico.
-  const messageIds = questionList.map((question) => question.id);
-  const counts = new Map<string, number>();
-
-  for (let i = 0; i < messageIds.length; i += 100) {
-    const { data: sources, error } = await supabase
-      .from("message_sources")
-      .select("chunk_id")
-      .in("message_id", messageIds.slice(i, i + 100));
-
-    if (error) {
-      console.error("Erro ao buscar fontes:", error);
-      break;
+    if (
+      detailsError.message.includes("Tópico não encontrado") ||
+      detailsError.message.includes("Acesso não autorizado")
+    ) {
+      notFound();
     }
 
-    for (const source of sources ?? []) {
-      counts.set(source.chunk_id, (counts.get(source.chunk_id) ?? 0) + 1);
-    }
+    throw new Error("Não foi possível carregar os detalhes do tópico.");
   }
 
-  const slides: SlideSource[] = [];
-  const chunkIds = [...counts.keys()];
+  if (!rawDetails) notFound();
+  const details = rawDetails as unknown as DetailsData;
+  details.topicId = topicId
 
-  for (let i = 0; i < chunkIds.length; i += 100) {
-    const { data: chunks, error } = await supabase
-      .from("chunks")
-      .select("id, page, page_end, material_id, materials(filename, storage_path)")
-      .in("id", chunkIds.slice(i, i + 100))
-      .eq("subject_id", topic.subject_id);
+// listar agrupamento dos tópicos
+  const { data: groupsData, error: groupsError } =
+    await supabase.rpc("listar_agrupamentos_topico", {
+      p_topic_id: topicId,
+    });
 
-    if (error) {
-      console.error("Erro ao consultar chunks:", error);
-      break;
-    }
-
-    for (const chunk of chunks ?? []) {
-      const relation = chunk.materials;
-      const material = Array.isArray(relation) ? relation[0] : relation;
-      if (!material) continue;
-
-      slides.push({
-        key: chunk.id,
-        filename: material.filename,
-        storagePath: material.storage_path,
-        start: chunk.page,
-        end: chunk.page_end ?? chunk.page,
-        count: counts.get(chunk.id) ?? 0,
-        url: null,
-      });
-    }
+  if (groupsError) {
+    console.error("Erro ao buscar agrupamentos:", groupsError);
+    throw new Error("Não foi possível carregar os agrupamentos.");
   }
 
-  slides.sort((a, b) => b.count - a.count);
-  const mostUsed = slides.slice(0, 10);
+  const groups = (groupsData ?? []).map((group: any) => ({
+    id: group.id,
+    title: group.title,
+    summary: group.summary,
+    totalQuestions: Number(group.total_questions ?? 0),
+    uniqueStudents: Number(group.unique_students ?? 0),
+  }));
 
-  // Apenas gera links para os arquivos exibidos.
+  // Gera URLs assinadas apenas para os PDFs associados aos slides exibidos.
   const urls = new Map<string, string | null>();
-  for (const path of [...new Set(mostUsed.map((slide) => slide.storagePath))]) {
-    const { data, error } = await supabase.storage
-      .from("storage_materials")
-      .createSignedUrl(path, 3600);
+  const slides: SlideSource[] = [];
 
-    if (error) console.error("Erro ao gerar link do PDF:", error);
-    urls.set(path, data?.signedUrl ?? null);
+  for (const slide of details.slides ?? []) {
+    if (!urls.has(slide.storagePath)) {
+      const { data: file, error: storageError } = await supabase.storage
+        .from("storage_materials")
+        .createSignedUrl(slide.storagePath, 3600);
+
+      if (storageError) {
+        console.error("Erro ao gerar URL do PDF:", storageError);
+      }
+
+      urls.set(slide.storagePath, file?.signedUrl ?? null);
+    }
+
+    slides.push({
+      ...slide,
+      url: urls.get(slide.storagePath) ?? null,
+    });
   }
-
-  for (const slide of mostUsed) {
-    slide.url = urls.get(slide.storagePath) ?? null;
-  }
-
 
   return (
     <TopicDetails
-      subjectId={topic.subject_id}
-      subjectName={subject?.name ?? "Disciplina"}
-      topicName={topic.title}
-      description={topic.description}
-      totalQuestions={totalQuestions ?? 0}
-      uniqueStudents={uniqueStudents}
-      summaries={summaries}
-      slides={mostUsed}
-      timeline={timeline}
+      subjectId={details.subjectId}
+      subjectName={details.subjectName}
+      topicId={details.topicId}
+      topicName={details.topicName}
+      description={details.description}
+      totalQuestions={details.totalQuestions}
+      uniqueStudents={details.uniqueStudents}
+      slides={slides}
+      timeline={details.timeline}
+      groups={groups}
     />
   );
 }

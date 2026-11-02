@@ -140,7 +140,7 @@ export function DashboardContent({
             </p>
             {studentSubjects.length === 1 && (
               <Button  className="mt-2">
-                <Link href={`/conversations/${studentSubjects[0].id}/chat`}>
+                <Link className="flex justify-center items-center" href={`/conversations/${studentSubjects[0].id}/chat`}>
                   Abrir chat <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>

@@ -22,7 +22,6 @@ import {
 export async function TopicsPage({ subjectId }: {subjectId: string}) {
   const  id  = subjectId;
   const user = await getCurrentUser();
-  console.log("segunda etapapa para ver se o id aparece ", subjectId)
 
   if (!user) redirect("/login");
 

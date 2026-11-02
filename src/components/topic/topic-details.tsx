@@ -1,10 +1,17 @@
 import Link from "next/link";
-import { ArrowLeft, BookOpen, ExternalLink, FileText, MessageSquare, Presentation, Users } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, FileText, MessageCircle, MessageSquare, Presentation, UserGroup, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export type TopicSummary = { id: string; title: string; summary: string; updatedAt: string };
+export type TopicSummary = {
+  id: string;
+  title: string;
+  summary: string;
+  updatedAt: string;
+  materialCoverage: "covered" | "not_covered" | "uncertain";
+  materialRecommendation: string | null;
+};
 export type DayCount = { day: string; count: number };
 export type SlideSource = {
   key: string;
@@ -19,41 +26,43 @@ export type SlideSource = {
 type Props = {
   subjectId: string;
   subjectName: string;
+  topicId: string;
   topicName: string;
   description: string | null;
   totalQuestions: number;
   uniqueStudents: number;
-  summaries: TopicSummary[];
   slides: SlideSource[];
   timeline: DayCount[];
   hasError?: boolean;
+  groups: DoubtGroup[]
 };
 
-
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
-}
+export type DoubtGroup = {
+  id: string;
+  title: string;
+  summary: string;
+  totalQuestions: number;
+  uniqueStudents: number;
+};
 
 export function TopicDetails({
   subjectId, subjectName, topicName, description,
-  totalQuestions, uniqueStudents, summaries, slides, timeline, hasError,
+  totalQuestions, uniqueStudents, slides, hasError, groups, topicId
 }: Props) {
+
+  
   const maxSlides = Math.max(1, ...slides.map((slide) => slide.count));
-  const maxDay = Math.max(1, ...timeline.map((day) => day.count));
   const stats = [
     { label: "Perguntas registradas", value: totalQuestions, icon: MessageSquare },
     { label: "Alunos com dúvidas", value: uniqueStudents, icon: Users },
     { label: "Trechos recuperados", value: slides.length, icon: Presentation },
   ];
 
-  console.log("contagem de dúvidas", totalQuestions)
-
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 pb-10">
       <header className="space-y-3">
         <Button variant="ghost" size="sm" >
-          <Link href="/dashboard"><ArrowLeft className="mr-2 size-4" /> Voltar ao dashboard</Link>
+          <Link href="/dashboard" className="flex gap-2"><ArrowLeft className="mr-2 size-4" /> Voltar ao dashboard</Link>
         </Button>
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">{subjectName} / Detalhes do tópico</p>
@@ -79,7 +88,7 @@ export function TopicDetails({
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2 text-base"><BookOpen className="size-4" /> Slides mais recuperados</CardTitle></CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-5 overflow-y-auto max-h-[50vh]">
             {slides.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nenhum trecho recuperado neste tópico.</p>
             ) : slides.map((slide) => (
@@ -97,45 +106,43 @@ export function TopicDetails({
                 {slide.url && <a href={slide.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline"><FileText className="size-3" /> Abrir PDF <ExternalLink className="size-3" /></a>}
               </div>
             ))}
-            <p className="text-xs text-muted-foreground">São fragmentos recuperados pela busca RAG, não necessariamente citados pela IA.</p>
           </CardContent>
+            <p className="text-xs text-muted-foreground mx-4">São fragmentos recuperados pela busca RAG, não necessariamente citados pela IA.</p>
         </Card>
-
         <Card>
-          <CardHeader><CardTitle className="text-base">Perguntas nos últimos 7 dias</CardTitle></CardHeader>
-          <CardContent>
-            <div className="flex h-52 items-end justify-between gap-2 border-b pb-2">
-              {timeline.map(({ day, count }) => (
-                <div key={day} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-                  <span className="text-xs text-muted-foreground">{count}</span>
-                  <div className="w-full max-w-12 rounded-t bg-primary/80" style={{ height: `${count === 0 ? 2 : Math.max(7, (count / maxDay) * 150)}px` }} />
-                  <span className="text-[11px] text-muted-foreground">{day}</span>
+          <CardHeader>
+            <CardTitle className="text-base">Agrupamento de dúvidas</CardTitle>
+            <p className="text-sm text-muted-foreground">Agrupamento das perguntas dos estudantes.</p>
+          </CardHeader>
+          <CardContent className="space-y-3 overflow-y-auto max-h-[50vh]">
+            {groups.length === 0 ? (
+              <p className="py-5 text-sm text-muted-foreground">Ainda não existem agrupamentos para este tópico.</p>
+            ) : groups.map((item) => (
+              <Link href={`/topics/${topicId}/${item.id}`} key={item.id} className="block">
+              <div key={item.id} className="space-y-3 rounded-lg border p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-medium">{item.title}</h3>
                 </div>
-              ))}
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">Contagem de perguntas, não de resumos.</p>
+                <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
+                  {item.summary}
+                </p>
+                <div className="flex gap-4">
+                  <div className="flex gap-2">
+                    <UserGroup size={16}/>
+                    <p> {item.uniqueStudents} Alunos</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <MessageCircle size={16}/>
+                    <p> {item.totalQuestions} Requisições</p>
+                  </div>
+                </div>
+              </div>
+              </Link>
+            ))}
+            {groups.length >= 100 && <p className="text-xs text-muted-foreground">Exibindo os 100 resumos mais recentes.</p>}
           </CardContent>
         </Card>
       </section>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Resumos das dúvidas</CardTitle>
-          <p className="text-sm text-muted-foreground">Sínteses geradas pela IA para as conversas relacionadas ao tópico.</p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {summaries.length === 0 ? (
-            <p className="py-5 text-sm text-muted-foreground">Ainda não existem resumos para este tópico.</p>
-          ) : summaries.map((item) => (
-            <div key={item.id} className="space-y-2 rounded-lg border p-4">
-              <h3 className="text-sm font-medium">{item.title}</h3>
-              <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">{item.summary}</p>
-              <p className="text-xs text-muted-foreground">Atualizado em {formatDate(item.updatedAt)}</p>
-            </div>
-          ))}
-          {summaries.length >= 100 && <p className="text-xs text-muted-foreground">Exibindo os 100 resumos mais recentes.</p>}
-        </CardContent>
-      </Card>
     </div>
   );
 }

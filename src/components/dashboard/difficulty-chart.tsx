@@ -15,8 +15,16 @@ export function DifficultyChart({ data }: { data: Dificuldade[] }) {
   const top = ordenados.slice(0, 4);
   const restantes = ordenados.slice(4).reduce((sum, item) => sum + item.total, 0);
   const itens = [
-    ...top.map((item) => ({ label: `${item.subject_name} · ${item.topic_title}`, total: item.total })),
-    ...(restantes > 0 ? [{ label: "Demais tópicos", total: restantes }] : []),
+    ...top.map((item) => ({
+      label:
+        item.topic_title === "Outro conteúdo"
+          ? "Outro assunto"
+          : `${item.subject_name} · ${item.topic_title}`,
+      total: item.total,
+    })),
+    ...(restantes > 0
+      ? [{ label: "Demais tópicos", total: restantes }]
+      : []),
   ];
   const total = itens.reduce((sum, item) => sum + item.total, 0);
   let percentual = 0;

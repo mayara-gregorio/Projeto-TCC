@@ -131,8 +131,8 @@ export function TopicDetails({
           <div>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Agrupamento de dúvidas</CardTitle>
-              <p className="text-sm text-muted-foreground">Agrupamento das perguntas dos estudantes.</p>
+              <CardTitle className="text-base">Relação de dúvidas resumidas</CardTitle>
+              <p className="text-sm text-muted-foreground">Relação das perguntas dos estudantes.</p>
             </CardHeader>
             
             <CardContent className="max-h-[100vh] space-y-3 overflow-y-auto">

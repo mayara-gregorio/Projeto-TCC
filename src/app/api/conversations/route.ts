@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { askLocal, classificarDuvida, resumirDuvida, escolherAgrupamento } from "@/lib/ai/local";
+import { askLocal, classificarDuvida, resumirDuvida } from "@/lib/ai/local";
 import { vetorDaDuvida } from "@/lib/rag/embeddings";
 export const runtime = "nodejs";
 type Topico = {
@@ -269,12 +269,10 @@ ${materiais}`;
   if (assistantError) {
     return NextResponse.json({ error: assistantError.message, conversationId }, { status: 500 });
   }
-  // Uma pergunta classificada recebe um resumo individual e pode integrar um grupo.
-  // Não reprocessamos dúvidas antigas. Falha no resumo/agrupamento não cancela
+  // Uma pergunta classificada recebe um resumo individual, exibido ao professor.
+  // Não reprocessamos dúvidas antigas. Falha no resumo não cancela
   // a resposta já persistida para o aluno.
   let resumoSalvo = false;
-  let agrupamentoSalvo = false;
-  let groupId: string | null = null;
   let materialCoverage: string | null = null;
   if (classificacao.topic_id !== null) {
     try {
@@ -312,33 +310,6 @@ ${materiais}`;
         console.error("Erro ao salvar resumo da dúvida:", summaryError);
       } else {
         resumoSalvo = true;
-        try {
-          const { data: grupos, error: gruposError } = await supabase.rpc(
-            "grupos_candidatos_mensagem",
-            { p_message_id: userMessage.id }
-          );
-          if (gruposError) throw gruposError;
-          const decisao = await escolherAgrupamento({
-            topico: topico?.title ?? "Tópico",
-            tituloDuvida: resumo.title,
-            resumoDuvida: resumo.summary,
-            grupos: grupos ?? [],
-          });
-          const { data: novoGrupoId, error: registroError } = await supabase.rpc(
-            "registrar_agrupamento_mensagem",
-            {
-              p_message_id: userMessage.id,
-              p_group_id: decisao.groupId,
-              p_title: decisao.title,
-              p_summary: decisao.summary,
-            }
-          );
-          if (registroError) throw registroError;
-          groupId = typeof novoGrupoId === "string" ? novoGrupoId : null;
-          agrupamentoSalvo = groupId !== null;
-        } catch (error) {
-          console.error("Erro ao agrupar a dúvida:", error);
-        }
       }
     } catch (error) {
       console.error("Erro ao gerar resumo da dúvida:", error);
@@ -350,8 +321,6 @@ ${materiais}`;
     assistantMessage,
     classification: classificacao,
     summarySaved: resumoSalvo,
-    groupingSaved: agrupamentoSalvo,
-    groupId,
     materialCoverage,
     // Metadados úteis para conferência da busca, sem expor o texto dos chunks.
     retrievedChunks: chunks.map((chunk) => ({

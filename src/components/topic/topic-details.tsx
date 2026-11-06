@@ -39,14 +39,6 @@ type Props = {
   summaries: TopicSummary[];
 };
 
-export type DoubtGroup = {
-  id: string;
-  title: string;
-  summary: string;
-  totalQuestions: number;
-  uniqueStudents: number;
-};
-
 export function TopicDetails({
   subjectId, subjectName, topicName, description,
   totalQuestions, uniqueStudents, slides, hasError, summaries
@@ -131,8 +123,8 @@ export function TopicDetails({
           <div>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Agrupamento de dúvidas</CardTitle>
-              <p className="text-sm text-muted-foreground">Agrupamento das perguntas dos estudantes.</p>
+              <CardTitle className="text-base">Resumo das dúvidas</CardTitle>
+              <p className="text-sm text-muted-foreground">Resumo individual de cada pergunta dos estudantes.</p>
             </CardHeader>
             
             <CardContent className="max-h-[100vh] space-y-3 overflow-y-auto">

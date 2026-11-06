@@ -307,8 +307,18 @@ FORMATO OBRIGATÓRIO:
     throw new Error("Título ou resumo inválido.");
   }
 
+  // Cobertura do material: apenas registrada no banco, não é exibida ao professor.
+  const cobertura = [
+    "covered",
+    "not_covered",
+    "uncertain",
+  ].includes(String(item.material_coverage))
+    ? String(item.material_coverage)
+    : "uncertain";
+
   return {
     title: item.title.trim().slice(0, 80),
     summary: item.summary.trim().slice(0, 2000),
+    material_coverage: cobertura,
   };
 }

@@ -300,10 +300,8 @@ ${materiais}`;
           p_message_id: userMessage.id,
           p_title: resumo.title,
           p_summary: resumo.summary,
-          // A verificação de cobertura do material foi retirada. A função do banco
-          // ainda recebe estes parâmetros, por isso enviamos valores neutros.
-          p_material_coverage: "uncertain",
-          p_material_recommendation: null,
+          // Cobertura do material: apenas registrada no banco, não é exibida ao professor.
+          p_material_coverage: resumo.material_coverage,
         }
       );
       if (summaryError) {

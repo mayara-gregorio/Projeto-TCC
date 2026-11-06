@@ -1,5 +1,6 @@
 
 import Link from "next/link";
+import { TopicRegistration } from "@/components/topic/topic-registration";
 import { notFound, redirect } from "next/navigation";
 import {
   ArrowLeft,
@@ -13,10 +14,7 @@ import { getCurrentUser } from "@/lib/get-user";
 import { createClient } from "@/lib/supabase/server";
 
 
-import {
-  CreateTopicForm,
-  UploadTopicPdfForm,
-} from "@/components/topic/topic-forms";
+import { UploadTopicPdfForm } from "@/components/topic/topic-forms";
 
 
 export async function TopicsPage({ subjectId }: {subjectId: string}) {
@@ -110,13 +108,13 @@ export async function TopicsPage({ subjectId }: {subjectId: string}) {
         {/* Formulário de criação */}
         <section className="rounded-xl border p-5">
           <div className="mb-4">
-            <h2 className="font-semibold">Novo tópico</h2>
+            <h2 className="font-semibold">Cadastrar tópicos</h2>
             <p className="text-sm text-muted-foreground">
-              Adicione um assunto que será abordado na disciplina.
+              Importe os tópicos do plano de ensino com IA ou cadastre manualmente.
             </p>
           </div>
 
-          <CreateTopicForm subjectId={id} />
+          <TopicRegistration subjectId={id} />
         </section>
 
         {/* Listagem dos tópicos */}

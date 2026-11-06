@@ -240,23 +240,6 @@ trechos recuperados do material disponibilizado."
 Nunca afirme categoricamente que o professor
 não ensinou ou não disponibilizou o conteúdo.
 
-TAREFA 3 — RECOMENDAÇÃO
-
-Quando material_coverage for "not_covered" e a dúvida
-pertencer claramente à disciplina, escreva uma
-recomendação curta para incluir ou complementar
-o material didático sobre o assunto solicitado.
-
-Exemplo:
-"Recomenda-se incluir material didático sobre
-polimorfismo, com exemplos de sua aplicação."
-
-Não sugira mudanças na didática, metodologia,
-explicação em sala, exercícios ou reforço de aula.
-
-Quando a cobertura for covered ou uncertain,
-material_recommendation deve ser null.
-
 REGRAS GERAIS
 
 - Escreva em português brasileiro.
@@ -272,7 +255,6 @@ FORMATO OBRIGATÓRIO:
   "title": "Título do assunto",
   "summary": "O estudante solicitou...",
   "material_coverage": "covered",
-  "material_recommendation": null
 }
       `.trim(),
     },

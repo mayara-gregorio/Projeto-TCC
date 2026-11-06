@@ -325,24 +325,8 @@ FORMATO OBRIGATÓRIO:
     throw new Error("Título ou resumo inválido.");
   }
 
-  const cobertura = [
-    "covered",
-    "not_covered",
-    "uncertain",
-  ].includes(String(item.material_coverage))
-    ? String(item.material_coverage)
-    : "uncertain";
-
-  const recomendacao =
-    cobertura === "not_covered" &&
-    typeof item.material_recommendation === "string"
-      ? item.material_recommendation.trim().slice(0, 500)
-      : null;
-
   return {
     title: item.title.trim().slice(0, 80),
     summary: item.summary.trim().slice(0, 2000),
-    material_coverage: cobertura,
-    material_recommendation: recomendacao || null,
   };
 }

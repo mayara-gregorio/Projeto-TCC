@@ -11,8 +11,6 @@ export type TopicSummary = {
   title: string;
   summary: string;
   updatedAt: string;
-  materialCoverage: "covered" | "not_covered" | "uncertain";
-  materialRecommendation: string | null;
 };
 export type DayCount = { day: string; count: number };
 export type SlideSource = {
@@ -142,24 +140,6 @@ export function TopicDetails({
                       <h3 className="text-sm font-medium">
                         {item.title}
                       </h3>
-
-                      {item.materialCoverage === "covered" && (
-                        <Badge variant="secondary" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                          Cobertura identificada
-                        </Badge>
-                      )}
-
-                      {item.materialCoverage === "not_covered" && (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 dark:bg-orange-950 dark:text-orange-300">
-                          Cobertura insuficiente
-                        </Badge>
-                      )}
-
-                      {item.materialCoverage === "uncertain" && (
-                        <Badge variant="outline" className="bg-gray-50 text-gray-700 dark:bg-gray-950 dark:text-gray-300">
-                          Cobertura não verificada
-                        </Badge>
-                      )}
                     </div>
 
                     <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
@@ -175,26 +155,6 @@ export function TopicDetails({
                         )}
                       </span>
                     </div>
-
-                    {item.materialCoverage === "not_covered" && (
-                      <div className="space-y-2 rounded-md bg-muted/50 p-3">
-                        <p className="text-xs font-medium">
-                          Possível lacuna no material
-                        </p>
-
-                        <p className="text-xs text-muted-foreground">
-                          Não foi identificada cobertura suficiente
-                          nos trechos recuperados do material.
-                        </p>
-
-                        {item.materialRecommendation && (
-                          <p className="text-xs">
-                            <strong>Inclusão de material: </strong>
-                            {item.materialRecommendation}
-                          </p>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))
               )}

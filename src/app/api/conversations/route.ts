@@ -273,7 +273,6 @@ ${materiais}`;
   // Não reprocessamos dúvidas antigas. Falha no resumo não cancela
   // a resposta já persistida para o aluno.
   let resumoSalvo = false;
-  let materialCoverage: string | null = null;
   if (classificacao.topic_id !== null) {
     try {
       const topico = topicos.find((item) => item.id === classificacao.topic_id);
@@ -295,15 +294,16 @@ ${materiais}`;
       if (!resumo.title.trim() || !resumo.summary.trim()) {
         throw new Error("O Qwen retornou um resumo vazio.");
       }
-      materialCoverage = resumo.material_coverage;
       const { error: summaryError } = await supabase.rpc(
         "salvar_resumo_mensagem_v2",
         {
           p_message_id: userMessage.id,
           p_title: resumo.title,
           p_summary: resumo.summary,
-          p_material_coverage: resumo.material_coverage,
-          p_material_recommendation: resumo.material_recommendation,
+          // A verificação de cobertura do material foi retirada. A função do banco
+          // ainda recebe estes parâmetros, por isso enviamos valores neutros.
+          p_material_coverage: "uncertain",
+          p_material_recommendation: null,
         }
       );
       if (summaryError) {
@@ -321,7 +321,6 @@ ${materiais}`;
     assistantMessage,
     classification: classificacao,
     summarySaved: resumoSalvo,
-    materialCoverage,
     // Metadados úteis para conferência da busca, sem expor o texto dos chunks.
     retrievedChunks: chunks.map((chunk) => ({
       id: chunk.id,

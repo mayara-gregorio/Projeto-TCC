@@ -28,8 +28,6 @@ type SummaryRow = {
   summary: string;
   created_at: string;
   updated_at: string | null;
-  material_coverage: string | null;
-  material_recommendation: string | null;
 };
 
 export default async function TopicPage({ params }: Props) {
@@ -74,12 +72,6 @@ export default async function TopicPage({ params }: Props) {
       title: item.title,
       summary: item.summary,
       updatedAt: item.updated_at ?? item.created_at,
-      materialCoverage:
-        item.material_coverage === "covered" ||
-        item.material_coverage === "not_covered"
-          ? item.material_coverage
-          : "uncertain",
-      materialRecommendation: item.material_recommendation ?? null,
     })
   );
 

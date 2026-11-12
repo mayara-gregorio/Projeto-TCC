@@ -1,0 +1,21 @@
+import { AppSidebar } from "@/components/sidebar/sidebar-app/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { getCurrentUser } from "@/lib/get-user";
+import { redirect } from "next/navigation";
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
+  if (!user) {
+      redirect("/login");
+  }
+
+  return (
+    <SidebarProvider>
+      <AppSidebar titleDropdown={user.name} />
+      <main className="flex-1 p-4 bg-red-50">
+        <SidebarTrigger />
+        <div className="w-full">{children}</div>
+      </main>
+    </SidebarProvider>
+  );
+}

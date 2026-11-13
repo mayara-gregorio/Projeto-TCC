@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LearnSync",
+  title: "Assistente",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -102,7 +102,6 @@ export function Chat({
 
   return (
     <div className="flex h-full flex-col">
-      <h1>Chat</h1>
 
       <div className="flex-1 space-y-6 overflow-y-auto p-6">
         {messages.map((message) => (

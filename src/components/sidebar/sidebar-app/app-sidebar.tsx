@@ -13,7 +13,6 @@ export async function AppSidebar({titleDropdown}: {titleDropdown: React.ReactNod
 
   return (
     <Sidebar className="pb-6">
-      <SidebarHeader style={{}}>LearnSync</SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarNav/>

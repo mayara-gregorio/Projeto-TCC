@@ -7,6 +7,7 @@ import {
   ExternalLink,
   FileText,
   Plus,
+  Trash
 } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/get-user";
@@ -180,15 +181,15 @@ export default async function SubjectTopicsPage({
                         <ul className="flex flex-col gap-2">
                           {topic.materials.map((material) => (
                             <li key={material.id}>
-                              <div className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 p-3">
-                                <div className="flex min-w-0 items-center gap-3">
-                                  <FileText className="size-5 shrink-0 text-muted-foreground" />
+                              <div className="flex items-center justify-between gap-3 rounded-lgp-3">
+                                <div className="flex justify-between min-w-0">
+                                  <div className="flex min-w-0 items-center gap-2">
+                                    <FileText className="size-5 shrink-0 text-muted-foreground" />
 
-                                  <span className="truncate text-sm">
-                                    {material.filename}
-                                  </span>
-                                </div>
-
+                                    <span className="truncate text-sm">
+                                      {material.filename}
+                                    </span>
+                                  </div>
                                 {material.url && (
                                   <a
                                     href={material.url}
@@ -200,6 +201,10 @@ export default async function SubjectTopicsPage({
                                     <ExternalLink className="size-4" />
                                   </a>
                                 )}
+                                </div>
+                                  <div>
+                                    <Trash size={16}/>
+                                  </div>
                               </div>
                             </li>
                           ))}

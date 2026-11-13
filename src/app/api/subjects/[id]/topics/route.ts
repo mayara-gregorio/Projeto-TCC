@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { buscarParticipacao } from "@/lib/queries/subjects";
 import { dividirEmPedacos } from "@/lib/rag/dividir-em-pedacos";
 import { extrairPaginas } from "@/lib/rag/extrair-paginas";
 import { vetoresDosPedacos } from "@/lib/rag/embeddings";
@@ -29,11 +30,7 @@ export async function POST(request: NextRequest, { params }: Props) {
   }
 
   // Verifica se o usuário é professor da disciplina
-  const { data: membership, error: membershipError } = await supabase
-    .from("subject_members")
-    .select("user_id")
-    .eq("subject_id", subjectId)
-    .eq("user_id", user.id)
+  const { data: membership, error: membershipError } = await buscarParticipacao(supabase, subjectId, user.id)
     .eq("role", "teacher")
     .maybeSingle();
 

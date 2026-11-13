@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { buscarDisciplinaDoUsuario } from "@/lib/queries/subjects";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,19 +40,11 @@ export default async function SubjectPage({ params }: PageProps) {
   if (authError || !user) redirect("/login");
 
   // O !inner restringe o resultado às disciplinas de que o usuário é membro.
-  const { data: subjectItem, error: subjectError } = await supabase
-    .from("subjects")
-    .select(`
-      id,
-      name,
-      subject_members!inner (
-        user_id,
-        role
-      )
-    `)
-    .eq("id", subjectId)
-    .eq("subject_members.user_id", user.id)
-    .maybeSingle();
+  const { data: subjectItem, error: subjectError } = await buscarDisciplinaDoUsuario(
+    supabase,
+    subjectId,
+    user.id
+  ).maybeSingle();
 
   if (subjectError) {
     console.error("Erro ao buscar disciplina:", subjectError);
@@ -70,7 +63,7 @@ export default async function SubjectPage({ params }: PageProps) {
   if (!isTeacher && !isStudent) notFound();
 
   // Mantenha essa rota alinhada à localização real do chat no seu App Router.
-  const chatHref = `/subjects/${subjectId}/conversations`;
+  const chatHref = `/conversations/${subjectId}/chat`;
   const topicsHref = `/subjects/${subjectId}/topics`;
 
   let studentCount: number | null = null;

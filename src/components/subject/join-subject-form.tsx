@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-import { joinSubject } from "@/actions/actions";
+import { joinSubject } from "@/actions/subjects";
 
 const createClassSchema = z.object({
 

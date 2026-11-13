@@ -4,13 +4,8 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar"
-import { SidebarNav } from "./chat-sidebar-nav"
-
-type Conversation = {
-  id: string;
-  title: string | null;
-  created_at: string;
-};
+import { ChatSidebarNav } from "./chat-sidebar-nav"
+import type { Conversation } from "@/types"
 
 type ChatSidebarProps = {
   subjectId: string
@@ -24,7 +19,7 @@ export function ChatSidebar({ subjectId, conversations }: ChatSidebarProps) {
       <SidebarHeader>Conversas</SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarNav subjectId={subjectId} conversations={conversations ?? []} />
+          <ChatSidebarNav subjectId={subjectId} conversations={conversations ?? []} />
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

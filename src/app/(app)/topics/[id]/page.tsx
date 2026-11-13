@@ -1,18 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import {
-  TopicDetails,
-  type DayCount,
-  type SlideSource,
-} from "@/components/topic/topic-details";
-
- type TopicSummary = {
-  id: string;
-  title: string;
-  summary: string;
-  updatedAt: string;
-  materialCoverage: "covered" | "not_covered" | "uncertain";
-};
+import { TopicDetails } from "@/components/topic/topic-details";
+import type { DayCount, SlideSource, TopicSummary } from "@/types";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -35,7 +24,6 @@ type SummaryRow = {
   summary: string;
   created_at: string;
   updated_at: string | null;
-  material_coverage: "covered" | "not_covered" | "uncertain" ;
 };
 
 export default async function TopicPage({ params }: Props) {
@@ -74,14 +62,6 @@ export default async function TopicPage({ params }: Props) {
     throw new Error("Não foi possível carregar os resumos do tópico.");
   }
 
-  console.log("ID DO TÓPICO:", topicId);
-
-console.log("RESUMOS RECEBIDOS:", {
-  quantidade: rawSummaries?.length ?? 0,
-  primeiroResumo: rawSummaries?.[0] ?? null,
-  erro: summariesError,
-});
-  
   const summaries: TopicSummary[] = (
   (rawSummaries ?? []) as SummaryRow[]
 ).map((item) => ({
@@ -89,7 +69,6 @@ console.log("RESUMOS RECEBIDOS:", {
   title: item.title,
   summary: item.summary,
   updatedAt: item.updated_at ?? item.created_at,
-  materialCoverage: item.material_coverage,
 }));
 
 

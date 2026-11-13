@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/get-user";
 import { CreateSubjectButton } from "@/components/subject/create-subject-button";
 import { createClient } from "@/lib/supabase/server";
+import { listarDisciplinasDoUsuario } from "@/lib/queries/subjects";
 import { JoinSubjectButton } from "@/components/subject/join-subject-button";
 import { SubjectCard } from "@/components/subject/subject-card";
 import { ButtonGoChat } from "@/components/chat/button-go-chat";
@@ -11,17 +12,7 @@ export default async function ConversationsPage() {
 
   if (!user) return null;
 
-  const { data: subjects, error: errorSubject } = await supabase
-    .from("subjects")
-    .select(`
-      id,
-      name,
-      subject_members!inner (
-        user_id,
-        role
-      )
-    `)
-    .eq("subject_members.user_id", user.id);
+  const { data: subjects, error: errorSubject } = await listarDisciplinasDoUsuario(supabase, user.id);
 
   if (errorSubject) {
     console.error("Erro ao buscar Disciplinas:", errorSubject);

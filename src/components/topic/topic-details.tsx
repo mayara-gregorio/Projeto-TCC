@@ -1,28 +1,11 @@
 "use client"
 import Link from "next/link";
-import { ArrowLeft, BookOpen, ExternalLink, FileText, MessageCircle, MessageSquare, Presentation, UserGroup, Users } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, FileText, MessageSquare, Presentation, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-type TopicSummary = {
-  id: string;
-  title: string;
-  summary: string;
-  updatedAt: string;
-  materialCoverage: "covered" | "not_covered" | "uncertain";
-};
-export type DayCount = { day: string; count: number };
-export type SlideSource = {
-  key: string;
-  filename: string;
-  storagePath: string;
-  start: number;
-  end: number;
-  count: number;
-  url: string | null;
-};
-
+import type { DayCount, SlideSource, TopicSummary } from "@/types";
 type Props = {
   subjectId: string;
   subjectName: string;
@@ -140,20 +123,6 @@ export function TopicDetails({
                       <h3 className="text-sm font-medium">
                         {item.title}
                       </h3>
-                      <Badge
-                        variant="secondary"
-                        className={
-                          item.materialCoverage === "covered"
-                            ? "bg-green-100 text-green-800"
-                            : item.materialCoverage === "not_covered"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-gray-100 text-gray-800"
-                        }
-                      >{item.materialCoverage === "covered"
-                        ? "Cobertura identificada"
-                        : item.materialCoverage === "not_covered"
-                        ? "Cobertura insuficiente"
-                        : "Cobertura não verificada"}</Badge>
                     </div>
 
                     <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">

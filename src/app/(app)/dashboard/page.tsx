@@ -1,6 +1,7 @@
 
 import { getCurrentUser } from "@/lib/get-user";
 import { createClient } from "@/lib/supabase/server";
+import { listarDisciplinasDoUsuario } from "@/lib/queries/subjects";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 
 export default async function DashboardPage() {
@@ -11,17 +12,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
 
   // Busca disciplinas do usuário
-  const { data: subjects, error: subjectsError } = await supabase
-    .from("subjects")
-    .select(`
-      id,
-      name,
-      subject_members!inner (
-        user_id,
-        role
-      )
-    `)
-    .eq("subject_members.user_id", user.id)
+  const { data: subjects, error: subjectsError } = await listarDisciplinasDoUsuario(supabase, user.id)
     .order("name");
 
   if (subjectsError) {

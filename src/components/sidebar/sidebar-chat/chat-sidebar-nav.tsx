@@ -8,10 +8,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import type { Conversation } from "@/types";
 
-type Conversation = { id: string; title: string | null; created_at: string };
 
-export function SidebarNav({
+export function ChatSidebarNav({
   subjectId,
   conversations,
 }: {

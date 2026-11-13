@@ -1,6 +1,6 @@
 "use client"
 
-import { logoutCurrentUser } from "@/actions/actions";
+import { logoutCurrentUser } from "@/actions/auth";
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

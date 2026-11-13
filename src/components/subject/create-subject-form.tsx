@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-import { createSubject } from "@/actions/actions";
+import { createSubject } from "@/actions/subjects";
 
 const createSubjectSchema = z.object({
   subjectName: z

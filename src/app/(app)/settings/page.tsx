@@ -1,41 +1,13 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { atualizarPerfil } from "@/actions/profile";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-async function atualizarPerfil(formData: FormData) {
-  "use server";
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
-
-  const name = String(formData.get("name") ?? "").trim();
-
-  if (!name || name.length > 100) return;
-
-  const { error } = await supabase
-    .from("users")
-    .update({ name })
-    .eq("id", user.id);
-
-  if (error) {
-    console.error("Erro ao atualizar perfil:", error);
-    return;
-  }
-
-  revalidatePath("/profile");
-}
 
 export default async function settingsPage() {
   const supabase = await createClient();

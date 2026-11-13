@@ -31,7 +31,6 @@ type Classificacao = {
   confidence: number;
 };
 
-// Envia mensagens ao servidor local
 export async function askLocal(
   messages: Msg[]
 ): Promise<string> {

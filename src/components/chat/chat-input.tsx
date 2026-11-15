@@ -72,7 +72,7 @@ export function ChatInput({
         <div className="flex items-start gap-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <p>
-            O professor poderá visualizar resumos das dúvidas
+            O professor visualizará as dúvidas
             enviadas, sem vínculo à identificação do estudante.
           </p>
         </div>

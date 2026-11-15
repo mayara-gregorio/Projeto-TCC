@@ -24,6 +24,7 @@ type SummaryRow = {
   summary: string;
   created_at: string;
   updated_at: string | null;
+  originalQuestion?: string | null;
 };
 
 export default async function TopicPage({ params }: Props) {
@@ -62,6 +63,30 @@ export default async function TopicPage({ params }: Props) {
     throw new Error("Não foi possível carregar os resumos do tópico.");
   }
 
+
+type OriginalQuestionRow = {
+  summary_id: string;
+  original_question: string;
+};
+
+const { data: originalQuestions, error: questionsError } =
+  await supabase.rpc("listar_duvidas_dos_resumos_topico", {
+    p_topic_id: topicId,
+    p_limite: 200,
+  });
+
+if (questionsError) {
+  console.error("Erro ao buscar dúvidas originais:", questionsError);
+  throw new Error("Não foi possível carregar as dúvidas originais.");
+}
+
+const questionMap = new Map(
+  ((originalQuestions ?? []) as OriginalQuestionRow[]).map(
+    (item) => [item.summary_id, item.original_question]
+  )
+);
+
+
   const summaries: TopicSummary[] = (
   (rawSummaries ?? []) as SummaryRow[]
 ).map((item) => ({
@@ -69,6 +94,7 @@ export default async function TopicPage({ params }: Props) {
   title: item.title,
   summary: item.summary,
   updatedAt: item.updated_at ?? item.created_at,
+  originalQuestion: questionMap.get(item.id) ?? null
 }));
 
 

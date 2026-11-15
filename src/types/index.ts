@@ -3,6 +3,7 @@ export type TopicSummary = {
   title: string;
   summary: string;
   updatedAt: string;
+  originalQuestion?: string | null;
 };
 export type DayCount = { day: string; count: number };
 export type SlideSource = {

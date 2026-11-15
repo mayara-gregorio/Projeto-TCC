@@ -43,6 +43,7 @@ export default async function SubjectTopicsPage({
     .select(`
         id,
         title,
+        description,
         materials (
         id,
         filename,
@@ -158,6 +159,9 @@ export default async function SubjectTopicsPage({
                           <h3 className="truncate font-medium">
                             {topic.title}
                           </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {topic.description}
+                          </p>
 
                           <p className="text-xs text-muted-foreground">
                             {topic.materials.length} material(is)
